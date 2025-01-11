@@ -48,7 +48,7 @@ function App() {
                 <Route path='/signup/success' element={<SignUpSuccess />} />
                 <Route path='/signup/complete' element={<SignupComplete />} />
                 <Route path='/signup-otp' element={<SignUpOTP/>} />
-                <Route path='/' element={<HomePage />} />
+                <Route path='/dashboard' element={<HomePage />} />
                 <Route path='/customers' element={<CustomerPage />} />
                 <Route path='/customers/:id' element={<CustomerInfo/>} />
                 <Route path='/riders' element={<RiderPage />} />

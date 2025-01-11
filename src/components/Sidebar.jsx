@@ -71,7 +71,7 @@ import { cn } from '@/lib/utils';
 
 const NestedSidebarItem = ({ icon, text, routeName, count, isNested = false }) => {
   const location = useLocation();
-  const active = location.pathname === `/${routeName}`;
+  const active = location.pathname.startsWith(`/${routeName}`);
 
   return (
     <Link to={`/${routeName}`}>
@@ -132,7 +132,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
                 icon={<FaDesktop 
                 size={20} />} 
                 text="Dashboard" 
-                routeName={''} 
+                routeName={'dashboard'} 
               />
                <SidebarItem 
                 icon={<User size={20} />} 
