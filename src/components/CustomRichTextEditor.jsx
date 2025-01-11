@@ -42,86 +42,17 @@ export const RichTextEditor = ({
   const [content, setContent] = useState(initialValue)
   const [activeFormats, setActiveFormats] = useState([])
   const editorRef = useRef(null)
-  const isInitialMount = useRef(true)
 
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-      if (editorRef.current && !content) {
-        editorRef.current.focus()
-      }
+    if (editorRef.current) {
+      editorRef.current.innerHTML = content
     }
-  }, [content])
+  }, [])
 
-  const saveSelection = () => {
-    const selection = window.getSelection()
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0)
-      const preSelectionRange = range.cloneRange()
-      preSelectionRange.selectNodeContents(editorRef.current)
-      preSelectionRange.setEnd(range.startContainer, range.startOffset)
-      const start = preSelectionRange.toString().length
-
-      return {
-        start,
-        end: start + range.toString().length,
-        range: range.cloneRange()
-      }
-    }
-    return null
-  }
-
-  const restoreSelection = (savedSel) => {
-    if (savedSel) {
-      const selection = window.getSelection()
-      const range = document.createRange()
-      range.setStart(editorRef.current, 0)
-      let charCount = 0
-      let foundStart = false
-      let foundEnd = false
-
-      function traverseNodes(node) {
-        if (foundEnd) return
-
-        if (node.nodeType === 3) {
-          const nextCharCount = charCount + node.length
-          if (!foundStart && savedSel.start >= charCount && savedSel.start <= nextCharCount) {
-            range.setStart(node, savedSel.start - charCount)
-            foundStart = true
-          }
-          if (!foundEnd && savedSel.end >= charCount && savedSel.end <= nextCharCount) {
-            range.setEnd(node, savedSel.end - charCount)
-            foundEnd = true
-          }
-          charCount = nextCharCount
-        } else {
-          for (let child of node.childNodes) {
-            traverseNodes(child)
-          }
-        }
-      }
-
-      traverseNodes(editorRef.current)
-      selection.removeAllRanges()
-      selection.addRange(range)
-    }
-  }
-
-  const handleFormat = (format, value) => {
-    const savedSel = saveSelection()
-    editorRef.current.focus()
-    
-    if (format === 'heading') {
-      document.execCommand('formatBlock', false, `<h${value}>`)
-    } else if (format === 'formatBlock') {
-      document.execCommand(format, false, value)
-    } else {
-      document.execCommand(format, false, value)
-    }
-
+  const handleFormat = (command, value = null) => {
+    document.execCommand(command, false, value)
     updateActiveFormats()
     updateContent()
-    restoreSelection(savedSel)
   }
 
   const handleImageUpload = () => {
@@ -134,42 +65,9 @@ export const RichTextEditor = ({
       if (file) {
         const reader = new FileReader()
         reader.onload = (e) => {
-          const selection = window.getSelection()
-          const range = selection?.getRangeAt(0)
-          
-          if (range) {
-            const wrapper = document.createElement('span')
-            wrapper.contentEditable = 'false'
-            wrapper.className = 'relative inline-block'
-            
-            const img = document.createElement('img')
-            img.src = e.target?.result
-            img.className = 'max-w-full h-auto rounded-lg'
-            
-            const deleteButton = document.createElement('button')
-            deleteButton.type = 'button'
-            deleteButton.className = 'absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-sm'
-            deleteButton.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>'
-            
-            deleteButton.onclick = (e) => {
-              e.preventDefault()
-              wrapper.remove()
-              updateContent()
-            }
-            
-            wrapper.appendChild(img)
-            wrapper.appendChild(deleteButton)
-            
-            range.deleteContents()
-            range.insertNode(wrapper)
-            
-            range.setStartAfter(wrapper)
-            range.setEndAfter(wrapper)
-            selection.removeAllRanges()
-            selection.addRange(range)
-            
-            updateContent()
-          }
+          const img = `<img src="${e.target.result}" alt="Uploaded image" class="max-w-full h-auto rounded-lg" />`
+          document.execCommand('insertHTML', false, img)
+          updateContent()
         }
         reader.readAsDataURL(file)
       }
@@ -182,41 +80,28 @@ export const RichTextEditor = ({
     if (e.key === 'Enter' && !e.shiftKey) {
       const selection = window.getSelection()
       const range = selection.getRangeAt(0)
-      let currentBlock = range.startContainer
-      
-      while (currentBlock && currentBlock.nodeType !== 1) {
-        currentBlock = currentBlock.parentNode
-      }
-      
+      const currentBlock = range.startContainer.parentElement
+
       if (currentBlock && /^H[1-6]$/i.test(currentBlock.nodeName)) {
         e.preventDefault()
         const p = document.createElement('p')
         p.innerHTML = '<br>'
         currentBlock.parentNode.insertBefore(p, currentBlock.nextSibling)
-        
-        const newRange = document.createRange()
-        newRange.setStart(p, 0)
-        newRange.collapse(true)
-        
+        range.setStartAfter(p)
+        range.collapse(true)
         selection.removeAllRanges()
-        selection.addRange(newRange)
-        
+        selection.addRange(range)
         updateContent()
       }
     }
   }
 
-  const handleChange = () => {
-    const savedSel = saveSelection()
-    updateContent()
-    updateActiveFormats()
-    restoreSelection(savedSel)
-  }
-
   const updateContent = () => {
-    const newContent = editorRef.current.innerHTML
-    setContent(newContent)
-    onChange?.(newContent)
+    if (editorRef.current) {
+      const newContent = editorRef.current.innerHTML
+      setContent(newContent)
+      onChange?.(newContent)
+    }
   }
 
   const updateActiveFormats = () => {
@@ -264,7 +149,7 @@ export const RichTextEditor = ({
             {headingOptions.map((option) => (
               <DropdownMenuItem
                 key={option.value}
-                onClick={() => handleFormat('heading', option.value)}
+                onClick={() => handleFormat('formatBlock', `<h${option.value}>`)}
               >
                 {option.label}
               </DropdownMenuItem>
@@ -325,15 +210,15 @@ export const RichTextEditor = ({
         ref={editorRef}
         contentEditable
         className="min-h-[200px] rounded-lg border p-4 focus:outline-none focus:ring-2 focus:ring-gray-200 [&_img]:max-w-full [&_img]:h-auto [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic"
-        onInput={handleChange}
+        onInput={updateContent}
         onKeyDown={handleKeyDown}
-        dangerouslySetInnerHTML={{ __html: content }}
+        onBlur={updateActiveFormats}
       />
 
       {maxLength && (
         <div className="flex items-center justify-between text-sm text-gray-500">
           <div>Total characters: {content.length}</div>
-          <Button variant="outline">Save changes</Button>
+          <Button variant="outline" onClick={updateContent}>Save changes</Button>
         </div>
       )}
     </div>
