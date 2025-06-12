@@ -1,4 +1,4 @@
-import { Bell, CheckCircle2, HelpCircle, Menu, Search, Settings, Tag, TagIcon } from 'lucide-react'
+import { ArrowLeftCircle, Bell, CheckCircle2, HelpCircle, Menu, Search, Settings, Tag, TagIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -6,6 +6,7 @@ import { NotificationOverlay } from './NotificationOverlay';
 import { NotificationItem } from './NotificationItem';
 import { Logo } from '@/icon/Icons'
 import { CustomButton } from './CustomButton';
+import { Navigate } from 'react-router';
 
 export const AppHeader = ({icon, name, toggleSidebar}) => {
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
@@ -89,6 +90,9 @@ export const AppHeader = ({icon, name, toggleSidebar}) => {
         </div>
 
         {/* Center/Left section with page icon and title */}
+        <CustomButton className={"hidden md:flex items-center p-2 bg-white hover:bg-gray-100 rounded-full"} onClick={Navigate(-1)}>
+          <ArrowLeftCircle size={24} className="text-black" />
+        </CustomButton>
         <div className='hidden md:flex items-center dark:text-white'>
           {icon}
           <span className="ml-3 text-2xl font-semibold">{name}</span>

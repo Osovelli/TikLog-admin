@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Eye, Trash2, Plus, UserCheckIcon } from 'lucide-react'
+import { Eye, Trash2, Plus, UserCircleIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { FreeMode } from 'swiper/modules'
@@ -12,6 +12,8 @@ import { CustomButton } from '@/components/CustomButton'
 import { AddAdminRoleModal } from '@/components/_AdminRolesComponents/AddAdminRoleModal'
 import { useNavigate } from 'react-router'
 import useRoleStore from '@/store/RolesStore'
+import { ViewRoleDetails } from '@/components/_AdminRolesComponents/viewRoleDetails'
+import { get } from 'react-hook-form'
 
 const TabButton = ({ label, active, onClick }) => (
   <button
@@ -26,38 +28,63 @@ const TabButton = ({ label, active, onClick }) => (
   </button>
 );
 
-export const RolesPermissionsPage = () => {
+export const RolesPage = () => {
   const [activeTab, setActiveTab] = useState('all');
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
+  //const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
   const [isAdminRoleModalOpen, setIsAdminRoleModalOpen] = useState(false)
-  
-  const { getAllRoles, adminRoles, loading, permissions, getPermissions} = useRoleStore()
+  const [isViewRoleDetailsOpen, setIsViewRoleDetailsOpen] = useState(false)
 
-  useEffect(() => {
-    adminRoles === null && getAllRoles();
-    console.log("AdminRoles:", adminRoles?.data)
-    permissions === null && getPermissions();
-    console.log("Permissions:", permissions)
-  }, [adminRoles, getAllRoles, permissions, getPermissions]);
-
+  const { adminRoles, getAllRoles, getRole, selectedRole, loading} = useRoleStore()
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        await getAllRoles();
+      } catch (error) {
+        console.error('Error fetching roles:', error);
+      }
+    console.log("AdminRoles:", adminRoles?.data)
+    };
+    fetchRoles();
+  }, []);
+
+
   const columns = [
-    { 
-      key: 'name', 
-      label: 'Name',
+    {
+      key: '_id',
+      label: 'ID',
+      isHidden: true, // Hide ID column
+      render: (value) => <span className="text-gray-500">{value}</span>
     },
-    { 
-      key: 'email', 
-      label: 'Email',
+    { key: 'role', 
+      label: 'Role' 
     },
-    { key: 'role', label: 'Role' },
+    {
+        key: 'description',
+        label: 'Description',
+    },
     { 
       key: 'lastLogin', 
       label: 'Last Login',
     },
-    { key: 'status', label: 'Status' }
+    { key: 'status', 
+      label: 'Status' 
+    }
   ];
+
+const Data = adminRoles?.data || [];
+console.log({Data})
+
+const rolesData = Data.map(role => ({
+    _id: role._id,
+    role: role.name,
+    description: role.description,
+    lastLoginDate: 'Dec 6, 2024', // Added manually
+    lastLoginTime: '12:45:59',    // Added manually
+    status: 'Active',             // Added manually
+}));
+      
 
   const adminsData = [
     {
@@ -65,6 +92,7 @@ export const RolesPermissionsPage = () => {
       name: 'Goodluck Ebele-Jonathan',
       email: 'ojembakudus@gmail.com',
       role: 'Super Admin',
+      description: 'Has full access to all features and settings.',
       lastLoginDate: 'Dec 6, 2024',
       lastLoginTime: '12:45:59',
       status: 'Active',
@@ -76,6 +104,7 @@ export const RolesPermissionsPage = () => {
       name: 'Goodluck Ebele-Jonathan',
       email: 'ojembakudus@gmail.com',
       role: 'Super Admin',
+      description: 'Has limited access to all features and settings.',
       lastLoginDate: 'Dec 6, 2024',
       lastLoginTime: '12:45:59',
       status: 'Active',
@@ -123,13 +152,27 @@ export const RolesPermissionsPage = () => {
     return value;
   };
 
-  const handleView = (row) => {
-    console.log('View admin:', row);
+  const handleView = async(row) => {
+    console.log('View role details:', row);
+    console.log('VIEW ROLE iD:', row._id);
+    console.log('ROLE ID TYPE', typeof row?._id);
+    /* setIsViewRoleDetailsOpen(true); */
+
+    await getRole({_id: row?._id});
+    console.log("Selected Role", selectedRole)
+    // You can pass the fetched role data to the ViewRoleDetails component
+    setIsViewRoleDetailsOpen(true);
   };
 
   const handleDelete = (row) => {
     console.log('Delete admin:', row);
   };
+
+  /* const handleOpenViewRoleDetails = (role) => {
+    console.log('View role details:', role);
+    setIsViewRoleDetailsOpen(true);
+  }; */
+
 
   const ActionButtons = ({ row }) => (
     <div className="flex items-center gap-2">
@@ -184,10 +227,10 @@ export const RolesPermissionsPage = () => {
           <Button 
             variant="outline" 
             className="flex-1 lg:flex-none whitespace-nowrap"
-            onClick={()=>navigate("/roles-management")}
+            onClick={()=>navigate('/admin-roles')}
           >
-            <UserCheckIcon className="w-4 h-4 mr-2" />
-            Roles
+            <UserCircleIcon className="w-4 h-4 mr-2" />
+            Admin Permission
           </Button>
           {/* <Button 
             variant="outline" 
@@ -199,10 +242,10 @@ export const RolesPermissionsPage = () => {
           </Button> */}
           <CustomButton 
             className="flex-1 lg:flex-none bg-[#1F1F76] hover:bg-indigo-700 whitespace-nowrap"
-            onClick={() => setIsAdminModalOpen(true)}
+            onClick={() => setIsAdminRoleModalOpen(true)}
           >
             <Plus className="w-4 h-4 mr-2" />
-            New Admin
+            New Role
           </CustomButton>
         </div>
       </div>
@@ -212,7 +255,7 @@ export const RolesPermissionsPage = () => {
           <Table
             name={"Roles & Permissions"}
             columns={columns}
-            data={adminsData}
+            data={rolesData}
             renderCustomCell={renderCustomCell}
             showSearch={false}
             itemsPerPage={10}
@@ -221,14 +264,19 @@ export const RolesPermissionsPage = () => {
         </div>
       </div>
     </div>
-    <AdminModal 
+    {/* <AdminModal 
       isOpen={isAdminModalOpen}
       onClose={() => setIsAdminModalOpen(false)}
-    />
-    {/* <AddAdminRoleModal
+    /> */}
+    <AddAdminRoleModal
       isOpen={isAdminRoleModalOpen}
       onClose={() => setIsAdminRoleModalOpen(false)}
-    /> */}
+    />
+    <ViewRoleDetails
+      role={selectedRole} // Replace with actual role data when available
+      isOpen={isViewRoleDetailsOpen} // Replace with actual state to control visibility
+      onClose={()=>setIsViewRoleDetailsOpen(false)} // Replace with actual close handler
+    />
     </AppLayout>
   );
 };

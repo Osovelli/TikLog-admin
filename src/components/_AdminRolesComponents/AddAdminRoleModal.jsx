@@ -4,8 +4,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { CustomCheckbox } from '../CustomCheckbox'
 import Modal from '../ModalComponent'
+import useRoleStore from '@/store/RolesStore'
 
-const PermissionSection = ({ title, isOpen, onToggle, permissions, onChange, onSelectAll }) => {
+/* const PermissionSection = ({ title, isOpen, onToggle, permissions, onChange, onSelectAll }) => {
   const allChecked = permissions.every(p => p.checked)
   const someChecked = permissions.some(p => p.checked)
 
@@ -42,14 +43,15 @@ const PermissionSection = ({ title, isOpen, onToggle, permissions, onChange, onS
       )}
     </div>
   )
-}
+} */
 
 export const AddAdminRoleModal = ({ isOpen, onClose }) => {
   const [expandedSections, setExpandedSections] = useState(['dashboard'])
+  const [isAdminRoleModalOpen, setIsAdminRoleModalOpen] = useState(isOpen)  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    permissions: {
+    /* permissions: {
       dashboard: [
         { id: 'dashboard-read', label: 'Read', checked: false },
         { id: 'dashboard-update', label: 'Update', checked: false },
@@ -100,10 +102,27 @@ export const AddAdminRoleModal = ({ isOpen, onClose }) => {
         { id: 'roles-update', label: 'Update', checked: false },
         { id: 'roles-delete', label: 'Delete', checked: false }
       ]
-    }
+    } */
   })
 
-  const toggleSection = (section) => {
+  const {  createRole, loading } =  useRoleStore()
+
+  const handleCreateRole = async ({name, description}) => {
+    const roleData = {
+      name: formData.name,
+      description: formData.description
+    }
+    console.log('CREATING ROLE DATA:', roleData)
+    try {
+      await createRole(roleData);
+      setIsAdminRoleModalOpen(false);
+      onClose();
+    } catch (error) {
+      console.error('Error creating role:', error);
+    }
+  }
+
+  /* const toggleSection = (section) => {
     setExpandedSections(prev => 
       prev.includes(section) 
         ? prev.filter(s => s !== section)
@@ -136,7 +155,7 @@ export const AddAdminRoleModal = ({ isOpen, onClose }) => {
   const handleSave = () => {
     console.log('Form data:', formData)
     onClose()
-  }
+  } */
 
   const sections = [
     { id: 'dashboard', label: 'Dashboard' },
@@ -159,7 +178,8 @@ export const AddAdminRoleModal = ({ isOpen, onClose }) => {
       buttons={[
         {
           label: "Save changes",
-          onClick: handleSave,
+          onClick: handleCreateRole,
+          disabled: loading,
           primary: true
         }
       ]}
@@ -178,7 +198,7 @@ export const AddAdminRoleModal = ({ isOpen, onClose }) => {
           rows={4}
         />
 
-        <div className="border rounded-lg divide-y">
+        {/* <div className="border rounded-lg divide-y">
           {sections.map(section => (
             <PermissionSection
               key={section.id}
@@ -190,7 +210,7 @@ export const AddAdminRoleModal = ({ isOpen, onClose }) => {
               onSelectAll={(checked) => handleSelectAll(section.id, checked)}
             />
           ))}
-        </div>
+        </div> */}
       </div>
     </Modal>
   )

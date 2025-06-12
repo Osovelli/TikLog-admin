@@ -33,6 +33,8 @@ import { DeliveryAndReturnPolicy } from './components/_SettingsComponents/TabsCo
 import FAQ from './components/_SettingsComponents/TabsComponent/FAQ';
 import Newsletter from './components/_SettingsComponents/TabsComponent/Newsletter';
 import CreateNewsletter from './components/_SettingsComponents/CreateNewsletter';
+import { Toaster } from 'react-hot-toast';
+import { RolesPage } from './pages/Roles/RolesPage';
 
 
 function App() {
@@ -67,6 +69,7 @@ function App() {
                 <Route path='/vehicle' element={<VehicleManagementPage />} />
                 <Route path='/chat' element={<ChatManagementPage />} />
                 <Route path='/admin-roles' element={<RolesPermissionsPage />} />
+                <Route path='/roles-management' element={<RolesPage />} />
                 <Route path="/settings" element={<SettingsPageLayout />}>
                     <Route index element={<Navigate to="/settings/about-us" replace />} />
                     <Route path="about-us" element={<AboutUs />} />
@@ -78,6 +81,7 @@ function App() {
                 </Route>
                 <Route path="/settings/newsletter/create" element={<CreateNewsletter />} />
             </Routes>
+             <Toaster />
         </BrowserRouter>
     )
 }

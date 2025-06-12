@@ -8,20 +8,22 @@ const useAuthStore = create((set) => ({
   adminData: null,
   loading: false,
   error: null,
+  isLoggedIn: false,
   showErrorModal: false,
 
 
-  login: async (email, password) => {
+  login: async ({email, password}) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.post('/admin/login', { email, password });
+      const response = await axiosInstance.post('/auth/admin', { email, password });
       const token  = response.data?.data?.token;
       const user = response.data?.data?.user
       console.log("LOGIN token", token)
       console.log("LOGIN User", user)
       console.log("LOGIN User", response)
       localStorage.setItem('token', token);
-      set({ user: user, token: token, loading: false });
+      set({ user: user, token: token, loading: false, isLoggedIn: true,});
+      toast.success("Login successful");
     } catch (error) {
       console.error("Login failed", error);
       toast.error(error.response.data.message)
@@ -47,7 +49,10 @@ const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.removeItem('token');
-    set({ user: null, token: null });
+    set({ user: null, token: null, isLoggedIn: false,  });
+    /* console.log("LOGIN token", token)
+    console.log("LOGIN User", user) */
+    console.log("User logged out");
   },
   closeErrorModal: () => set({ showErrorModal: false, error: null }),
 }));

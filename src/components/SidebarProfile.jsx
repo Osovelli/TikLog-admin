@@ -9,10 +9,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import useAuthStore from '@/store/authStore'
 
 
 export const SidebarProfile = ({ name, email, avatarUrl, isVerified = false }) => {
+  const { logout } = useAuthStore()
+  const navigate = useNavigate()
+  // const { user, token, isLoggedIn } = useAuthStore((state) => ({ ...state }));
+  // console.log("SidebarProfile user", user)
+
+  const handleSignOut = async() => {
+    // Implement sign-out logic here
+  
+    logout();
+    navigate('/signin', { replace: true });
+    
+  }
+
   return (
     <div className="flex items-center space-x-4 p-2 mb-6 hover:bg-gray-50 bg-white rounded-lg shadow">
       <div className="relative">
@@ -29,7 +43,7 @@ export const SidebarProfile = ({ name, email, avatarUrl, isVerified = false }) =
         <p className="text-xs text-gray-500 truncate">{email}</p>
       </div>
       <span className='text-red-500 hover:text-red-300 cursor-pointer'>
-        <LogOutIcon />
+        <LogOutIcon onClick={handleSignOut} />
       </span>
       {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>

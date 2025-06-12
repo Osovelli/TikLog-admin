@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,15 +9,66 @@ import { AuthLayout } from '@/components/_AuthComponents/AuthLayout'
 import { ButtonComponent } from '@/components/ButtonComponent'
 import { Apple, Google } from '@/icon/Icons'
 import InputComponent from '@/components/InputComponent'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import useAuthStore from '@/store/authStore'
+import axiosInstance from '@/lib/utils/axiosInstance'
 
 
 export const LoginPage = () => {
+  //const [email, setEmail] = useState('')
+  //const [password, setPassword] = useState('')
+  const { login, loading, isLoggedIn } = useAuthStore();
+  const [formData, setFormData] = useState({
+      email: '',
+      password: '',
+    });  
   const [showPassword, setShowPassword] = useState(false)
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-  const handlePhoneChange = (phoneData) => {
+
+  const handleEmailChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      email: e.target.value,
+    }));
+    //setEmail(e.target.value)
+    console.log("Email:", e.target.value)
+  }
+
+  const handlePasswordChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      password: e.target.value,
+    }));
+    //setPassword(e.target.value) 
+    console.log("Password:", e.target.value)
+  }
+
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    /// Validate form fields
+    //if (!validateForm()) return;
+    console.log({email: formData.email, password: formData.password})
+    login({
+      email: formData.email,
+      password: formData.password
+    })
+
+  } 
+
+ /*  const handlePhoneChange = (phoneData) => {
     console.log(phoneData); // { countryCode: '+234', nationalNumber: '8012345678', fullNumber: '+2348012345678' }
   };
+ */
+
+  useEffect(() => {
+    if(isLoggedIn){
+      //toast.success("Signup successful");
+      navigate("/dashboard");
+    }
+    },[isLoggedIn]
+  )
 
   return (
    <>
@@ -26,13 +77,30 @@ export const LoginPage = () => {
     description="Enter your phone number to continue"
     >
       <div className='flex flex-col gap-3'>
-        <PhoneInput />
-        <InputComponent password={true} type={showPassword ? "text" : "password"} placeholder="Password" />
+        {/* <PhoneInput /> */}
+        <InputComponent 
+        type="text" 
+        placeholder="Email" 
+        onChange={handleEmailChange} 
+        value={formData.email}
+        disabled={loading} 
+        />
+
+        <InputComponent 
+        password={true}
+        value={formData.password} 
+        type={showPassword ? "text" : "password"} 
+        placeholder="Password" 
+        onChange={handlePasswordChange}
+        disabled={loading} 
+        />
       </div>
       <ButtonComponent
       label="Login"
       variant="primary"
       buttonStyles="h-[52px] w-full"
+      onClick={handleSignIn}
+      disabled={loading || !formData.email || !formData.password}
        />
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">

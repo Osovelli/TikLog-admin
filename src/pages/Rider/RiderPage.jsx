@@ -2,8 +2,9 @@ import { AppLayout } from '@/components/AppLayout'
 import { CustomButton } from '@/components/CustomButton';
 import { Table } from '@/components/Table';
 import { PasscodeLock } from '@/icon/PasscodeLock';
+import useUserStore from '@/store/UserStore';
 import { Eye, MessageSquare, Plus, Trash2 } from 'lucide-react';
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router';
 
 const TabButton = ({ label, active, onClick }) => (
@@ -23,10 +24,20 @@ export const RiderPage = () => {
   const [activeTab, setActiveTab] = useState('all');
   const navigate = useNavigate()
 
+  const { allRiders, loading, getAllRiders } = useUserStore()
+
+   useEffect(() => {
+      if (allRiders === null) {
+        getAllRiders()
+      } 
+      console.log("All Riders:", allRiders)
+    }, [])
+
   const tabs = [
     { id: 'all', label: 'All Riders' },
     { id: 'active', label: 'Active Riders' },
-    { id: 'inactive', label: 'Inactive Riders' }
+    { id: 'inactive', label: 'Inactive Riders' },
+    { id: 'pending', label: 'Pending Riders' }
   ];
 
   const columns = [
@@ -37,7 +48,29 @@ export const RiderPage = () => {
     { key: 'state', label: 'State' }
   ];
 
-  const allCustomers = [
+   // Transform backend data to match table format
+  const transformRiderData = (backendData) => {
+    if (!backendData?.data || !Array.isArray(backendData.data)) {
+      return []
+    }
+
+    return backendData.data.map((rider) => ({
+      id: rider._id,
+      fullName: rider.lastname || "N/A", // Use lastname as fullName since firstname might not be available
+      email: rider.email,
+      phoneNumber: rider.phone_number,
+      status: rider.status,
+      state: "N/A", // State is not provided in backend data
+      avatar: rider.image || "/placeholder.svg?height=32&width=32", // Use placeholder if no image
+    }))
+  }
+
+  // Get transformed rider data
+    const allRidersTransformed = useMemo(() => {
+      return transformRiderData(allRiders)
+    }, [allRiders])
+
+ /*  const allCustomers = [
     {
       id: 1,
       fullName: 'James Okpeba',
@@ -57,9 +90,25 @@ export const RiderPage = () => {
       state: 'Lagos State',
       avatar: '/Avatar3.png'
     }))
-  ];
+  ]; */
 
-  const filteredCustomers = useMemo(() => {
+
+  const filteredRiders = useMemo(() => {
+      if (!allRidersTransformed.length) return []
+  
+      switch (activeTab) {
+        case "active":
+          return allRidersTransformed.filter((rider) => rider.status === "Active")
+        case "inactive":
+          return allRidersTransformed.filter((rider) => rider.status === "Inactive")
+        case "pending":
+          return allRidersTransformed.filter((rider) => rider.status === "Pending")
+        default:
+          return allRidersTransformed
+      }
+    }, [activeTab, allRidersTransformed])
+
+  /* const filteredCustomers = useMemo(() => {
     switch (activeTab) {
       case 'active':
         return allCustomers.filter(customer => customer.status === 'Active');
@@ -68,17 +117,17 @@ export const RiderPage = () => {
       default:
         return allCustomers;
     }
-  }, [activeTab]);
+  }, [activeTab]); */
 
   const renderCustomCell = (key, value, row) => {
     if (key === 'fullName') {
       return (
         <div className="flex items-center gap-3">
-          <img 
+          {/* <img 
             src={row.avatar} 
             alt={value} 
             className="w-8 h-8 rounded-full"
-          />
+          /> */}
           <span>{value}</span>
         </div>
       );
@@ -146,21 +195,57 @@ export const RiderPage = () => {
     </div>
   ); */
 
+  // Show loading state
+    if (loading) {
+      return (
+        <AppLayout title="Customer">
+          <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+                <div className="space-y-3">
+                  {[...Array(filteredRiders.length)].map((_, i) => (
+                    <div key={i} className="h-4 bg-gray-200 rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </AppLayout>
+      )
+    }
+
   return (
-       <AppLayout title="Customer">
+       <AppLayout title="Riders">
         <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
           <div className="bg-white rounded-lg shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-b">
               <div className="mb-4 sm:mb-0 overflow-x-auto">
                 <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
-                  {tabs.map(tab => (
+                  {/* {tabs.map(tab => (
                     <TabButton
                       key={tab.id}
                       label={tab.label}
                       active={activeTab === tab.id}
                       onClick={() => setActiveTab(tab.id)}
                     />
-                  ))}
+                  ))} */}
+                  {tabs.map((tab) => (
+                  <TabButton
+                    key={tab.id}
+                    label={`${tab.label} (${
+                      tab.id === "all"
+                        ? allRidersTransformed.length
+                        : tab.id === "active"
+                          ? allRidersTransformed.filter((r) => r.status === "Active").length
+                          : tab.id === "pending" ? 
+                          allRidersTransformed.filter((r) => r.status === "Pending").length
+                          : allRidersTransformed.filter((r) => r.status === "Inactive").length
+                    })`}
+                    active={activeTab === tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                  />
+                ))}
                 </div>
               </div>
               <CustomButton
@@ -173,7 +258,24 @@ export const RiderPage = () => {
             </div>
     
             <div className="overflow-x-auto">
-              <Table
+              {filteredRiders.length > 0 ? (
+                <Table
+                  columns={columns}
+                  data={filteredRiders}
+                  renderCustomCell={renderCustomCell}
+                  showSearch={false}
+                  itemsPerPage={10}
+                  showManage={true}
+                  showDelete={true}
+                  renderActions={(row) => <ActionButtons row={row} />}
+                />
+                ) : (
+                  <div className="p-8 text-center text-gray-500">
+                    <p>No Riders found</p>
+                    {activeTab !== "all" && <p className="text-sm mt-2">Try switching to "All Riders" tab</p>}
+                  </div>
+                )}
+              {/* <Table
                 columns={columns}
                 data={filteredCustomers}
                 renderCustomCell={renderCustomCell}
@@ -182,7 +284,7 @@ export const RiderPage = () => {
                 showManage={true}
                 showDelete={true}
                 renderActions={(row) => <ActionButtons row={row} />}
-              />
+              /> */}
             </div>
           </div>
         </div>

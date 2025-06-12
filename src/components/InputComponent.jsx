@@ -28,7 +28,7 @@ const InputComponent = React.forwardRef(({
         </Label>
       )}
       <Input
-        type={type}
+        type={type === "password" && showPassword ? "text" : type}
         className={cn(
           "h-[52px]  px-3",
           error && "border-destructive focus-visible:ring-destructive",

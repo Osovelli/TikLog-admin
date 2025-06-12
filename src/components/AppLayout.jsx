@@ -1,10 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppHeader } from "./AppHeader";
 import { Sidebar } from "./Sidebar";
 import { Logo } from '@/icon/Icons'
+import { CustomButton } from './CustomButton';
+import { ArrowLeftCircle } from 'lucide-react';
+import useUserStore from '@/store/UserStore';
 
 export const AppLayout = ({children, icon, title}) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    
+    const { userCount, loading, getUserCount } = useUserStore(); 
+
+    useEffect(() => {
+      getUserCount();
+    }, []);
+
+    //console.log("User Count:", userCount?.data);
+
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -18,7 +30,7 @@ export const AppLayout = ({children, icon, title}) => {
 
         {/* Sidebar */}
         <div className="md:pt-20">
-          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} data={userCount?.data} />
         </div>
   
         {/* Main Content */}

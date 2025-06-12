@@ -20,7 +20,7 @@ export const Table = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
-  console.log('Table component rendered with data:', data, 'and columns:', columns);
+  //console.log('Table component rendered with data:', data, 'and columns:', columns);
 
   const filteredData = useMemo(() => {
     return data.filter(item => 
