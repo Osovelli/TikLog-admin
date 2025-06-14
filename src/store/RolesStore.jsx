@@ -41,19 +41,62 @@ const useRoleStore = create((set) => ({
     },
 
   getRole: async ({_id}) => {
-      set({ loading: true });
-
+      //set({ loading: true });
+      if (!_id) {
+          set({ loading: false, error: "Role ID is required" });
+          toast.error("Role ID is required");
+          return;
+      }
       try {
           const res = await axiosInstance.get(`/roles/${_id}`);
           set({  loading: false,  selectedRole: res.data.data});
-          console.log("SELECTED ROLE", res?.data)
-          console.log({_id})
+          console.log("SELECTED ROLE", res.data.data.data)
           toast.success(res.data.message);
       } catch (error) {
           set({ error: error.response?.data?.message || "Error Fetching Admin Roles", loading: false });
           console.log(error);
           toast.error(error.response.data.message || "An error occurred while fetching roles");
       }
+  },
+
+  updateRole: async ({_id, name, description}) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.put(`/roles/${_id}`, { name, description });
+      console.log("UPDATE ROLE RESPONSE", response);
+      set({ loading: false });
+      toast.success("Role updated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Update Role failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while updating role");
+      set({
+        loading: false,
+        error: 'Update Role failed. Please check your credentials.',
+        showErrorModal: true
+      });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  deleteRole: async ({_id}) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.delete(`/roles/${_id}`);
+      console.log("DELETE ROLE RESPONSE", response);
+      set({ loading: false });
+      toast.success("Role deleted successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Delete Role failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while deleting role");
+      set({
+        loading: false,
+        error: 'Delete Role failed. Please check your credentials.',
+        showErrorModal: true
+      });
+      throw error; // Re-throw to handle in component if needed
+    }
   },
 
 

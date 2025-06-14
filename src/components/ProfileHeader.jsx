@@ -12,7 +12,7 @@ export const ProfileHeader = ({
   onDeactivate 
 }) => {
   return (
-    <div className='p-2'>
+    <div className='md:-mx-6 -mx-0'>
       <div className="relative bg-blue-400 h-40">
         {/* Background with illustration */}
         <div className="absolute right-0 bottom-0 w-80">
