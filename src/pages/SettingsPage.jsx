@@ -17,6 +17,7 @@ const tabOptions = [
   { value: "help", label: "Help Center" },
   { value: "terms", label: "Terms & Conditions" },
   { value: "privacy", label: "Privacy Policy" },
+  
 ]
 
 export const SettingsPage = () => {

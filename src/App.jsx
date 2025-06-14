@@ -35,6 +35,7 @@ import Newsletter from './components/_SettingsComponents/TabsComponent/Newslette
 import CreateNewsletter from './components/_SettingsComponents/CreateNewsletter';
 import { Toaster } from 'react-hot-toast';
 import { RolesPage } from './pages/Roles/RolesPage';
+import PageSettings from './components/_SettingsComponents/TabsComponent/PageSettings';
 
 
 function App() {
@@ -77,7 +78,8 @@ function App() {
                     <Route path="privacy" element={<PrivacyPolicy />} />
                     <Route path="delivery" element={<DeliveryAndReturnPolicy />} />
                     <Route path="faq" element={<FAQ />} />
-                    <Route path="newsletter" element={<Newsletter />} /> 
+                    <Route path="newsletter" element={<Newsletter />} />
+                    <Route path="pages" element={<PageSettings />} /> 
                 </Route>
                 <Route path="/settings/newsletter/create" element={<CreateNewsletter />} />
             </Routes>

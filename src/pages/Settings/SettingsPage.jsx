@@ -11,6 +11,7 @@ const routes = [
   { path: '/settings/delivery', label: 'Delivery & Return Policy' },
   { path: '/settings/faq', label: 'FAQ' },
   { path: '/settings/newsletter', label: 'Newsletter' },
+  {path: '/settings/pages', label: 'Pages' },
 ]
 
 export const SettingsPageLayout = () => {
