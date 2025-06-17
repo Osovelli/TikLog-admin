@@ -1,10 +1,14 @@
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axiosInstance from "@/lib/utils/axiosInstance";
+import { act } from "react";
 
 const useUserStore = create((set) => ({
   userCount: null,
   allUsers: null,
+  singleUser: null,
+  singleRider: null,
+  singleVendor: null,
   allRiders: null,
   allVendors: null,
   loading: false,
@@ -43,6 +47,23 @@ const useUserStore = create((set) => ({
     }
   },
 
+  getUserById: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      console.log("Fetching user with ID:", id);
+      const response = await axiosInstance.get(`/admin/user_management/all_users/${id}`);
+      console.log("GET SINGLE USER RESPONSE", response.data);
+      set({ loading: false, singleUser: response.data });
+      toast.success("User fetched successfully");
+      return response.data.data;
+    } catch (error) {
+      console.error("Get Single User failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while fetching the user");
+      set({ loading: false, error: 'Get Single User failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
   getAllRiders: async () => {
     set({ loading: true, error: null });
     try {
@@ -55,6 +76,22 @@ const useUserStore = create((set) => ({
       console.error("Get All Riders failed", error);
       toast.error(error.response?.data?.message || "An error occurred while fetching all riders");
       set({ loading: false, error: 'Get All Riders failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  getRiderById: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.get(`/admin/user_management/all_riders/${id}`);
+      console.log("GET SINGLE RIDER RESPONSE", response.data);
+      set({ loading: false, singleRider: response.data });
+      toast.success("Rider fetched successfully");
+      return response.data.data;
+    } catch (error) {
+      console.error("Get Single Rider failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while fetching the rider");
+      set({ loading: false, error: 'Get Single Rider failed. Please try again.', showErrorModal: true });
       throw error; // Re-throw to handle in component if needed
     }
   },
@@ -73,7 +110,121 @@ const useUserStore = create((set) => ({
       set({ loading: false, error: 'Get All Vendors failed. Please try again.', showErrorModal: true });
       throw error; // Re-throw to handle in component if needed
     }
-  },     
+  },
+  
+  getVendorById: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.get(`/admin/user_management/all_vendors/${id}`);
+      console.log("GET SINGLE VENDOR RESPONSE", response.data);
+      set({ loading: false, singleVendor: response.data });
+      toast.success("Vendor fetched successfully");
+      return response.data.data;
+    } catch (error) {
+      console.error("Get Single Vendor failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while fetching the vendor");
+      set({ loading: false, error: 'Get Single Vendor failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  activateUser: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.patch(`/admin/user_management/all_users/${id}/status`, { status: true });
+      console.log("ACTIVATE USER RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("User activated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Activate User failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while activating the user");
+      set({ loading: false, error: 'Activate User failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  deactivateUser: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.patch(`/admin/user_management/all_users/${id}/status`, { status: false });
+      console.log("DEACTIVATE USER RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("User deactivated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Deactivate User failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while deactivating the user");
+      set({ loading: false, error: 'Deactivate User failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  activateRider: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.patch(`/admin/user_management/all_riders/${id}/status`, { status: true });
+      console.log("ACTIVATE RIDER RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("Rider activated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Activate Rider failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while activating the rider");
+      set({ loading: false, error: 'Activate Rider failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  deactivateRider: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.patch(`/admin/user_management/all_riders/${id}/status`, { status: false });
+      console.log("DEACTIVATE RIDER RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("Rider deactivated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Deactivate Rider failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while deactivating the Rider");
+      set({ loading: false, error: 'Deactivate Rider failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  activateVendor: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.patch(`/admin/user_management/all_vendors/${id}/status`, { status: true });
+      console.log("ACTIVATE VENDOR RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("vendor activated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Activate Vendor failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while activating the Vendor");
+      set({ loading: false, error: 'Activate Vendor failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  deactivateVendor: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.patch(`/admin/user_management/all_vendors/${id}/status`, { status: false });
+      console.log("DEACTIVATE VENDOR RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("Vendor deactivated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Deactivate Vendor failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while deactivating the Vendor");
+      set({ loading: false, error: 'Deactivate Vendor failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+    
+  openErrorModal: (error) => set({ showErrorModal: true, error }),
 
 
   closeErrorModal: () => set({ showErrorModal: false, error: null }),

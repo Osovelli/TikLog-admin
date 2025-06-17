@@ -24,7 +24,7 @@ export const CustomerPage = () => {
   const [activeTab, setActiveTab] = useState("all")
   const navigate = useNavigate()
 
-  const { allUsers, loading, getAllUsers } = useUserStore()
+  const { allUsers, loading, getAllUsers, getUserById } = useUserStore()
 
   useEffect(() => {
     if (allUsers === null) {
@@ -32,6 +32,14 @@ export const CustomerPage = () => {
     }
     console.log("All Users:", allUsers)
   }, [])
+
+  useEffect(() => {
+    if (allUsers && allUsers.length > 0) {
+      // Optionally, you can fetch details for the first user or any specific user
+      // getUserById(allUsers[0]._id)
+    }
+  }, [allUsers])
+
 
   const tabs = [
     { id: "all", label: "All Customers" },
@@ -120,7 +128,8 @@ export const CustomerPage = () => {
     // Add your view logic here
   }
 
-  const handleManageUser = (user) => {
+  const handleManageUser = async(user) => {
+    //console.log("Manage User clicked:", user)
     navigate(`/customers/${user.id}`)
   }
 

@@ -83,10 +83,10 @@ export const AppHeader = ({icon, name, toggleSidebar}) => {
           >
              <Menu size={24} className="text-black dark:text-white" />
           </CustomButton>
-          <div className="mx-4">
+          {<div className="mx-4">
             <Logo />
             <p className='text-xs'>ADMINISTRATIVE PANEL</p>
-          </div>
+          </div>}
         </div>
 
         {/* Center/Left section with page icon and title */}

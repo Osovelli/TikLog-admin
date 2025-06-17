@@ -135,17 +135,20 @@ export const RiderPage = () => {
     return value;
   };
 
-  const handleViewClick = (user) => {
-    navigate(`/Riders/${user.id}`);
+  const handleViewClick = (rider) => {
+    //navigate(`/Riders/${user.id}`);
+    console.log('View clicked:', rider);
   };
 
 
-  const handleManageUser = (user) => {
+  const handleManageUser = (row) => {
     console.log('Manage password clicked:', row);
+    navigate(`/riders/${row.id}`)
   };
 
   const handleDeleteClick = (row) => {
     console.log('Delete clicked:', row);
+    
   };
 
   const ActionButtons = ({ row }) => (

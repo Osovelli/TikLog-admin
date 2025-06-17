@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProfileForm } from '@/components/ProfileForm';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { RiderRequests } from '@/components/_RiderComponents/RiderRequests';
@@ -9,20 +9,25 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/free-mode';
+import { useLocation } from 'react-router';
+import useUserStore from '@/store/UserStore';
 
-export const RiderInfo = ({ customerId }) => {
+export const RiderInfo = () => {
+  const location = useLocation();
+  const riderId = location.pathname.split('/').pop();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
-    firstName: 'James',
-    lastName: 'Okpeba',
-    email: 'user@tiklog.com',
-    phone: '8100441503',
-    countryCode: '+234',
-    birthDate: '22-02-2022',
-    gender: 'Male',
-    address: '56 Opebi road, Sabo Yaba.',
-    startDate: '22-02-2022',
-    expiryDate: '22-02-2022',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    countryCode: '',
+    birthDate: '',
+    gender: '',
+    address: '',
+    startDate: '',
+    expiryDate: '',
+    isActive: null,
   });
 
   const tabs = [
@@ -32,6 +37,38 @@ export const RiderInfo = ({ customerId }) => {
     { id: 'license', label: 'License Information' },
     { id: 'vehicles', label: 'All Vehicles' },
   ]
+
+  const { getRiderById, activateRider, deactivateRider, loading } = useUserStore();
+
+  // Fetch user data when component mounts
+  useEffect(() => {
+    console.log('Fetching user data for ID:', riderId);
+    console.log(typeof riderId, riderId);
+    const fetchRiderData = async () => { 
+      try {
+        const riderData = await getRiderById(riderId);
+        if (riderData) {
+          setFormData({
+            firstName: riderData.firstname || 'James',
+            lastName: riderData.lastname || 'Okpeba',
+            email: riderData.email || 'user@tiklog.com',
+            phone: riderData.phone_number || '8100441503',
+            countryCode: riderData.country_code || '+234',
+            birthDate: riderData.date_of_birth || '22-02-2022',
+            gender: riderData.gender || 'Male',
+            address: riderData.address || '56 Opebi road, Sabo Yaba.',
+            startDate: riderData.start_date || '22-02-2022',
+            expiryDate: riderData.expiry_date || '22-02-2022',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchRiderData();
+  }, [getRiderById, riderId]);
+
+
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -44,17 +81,40 @@ export const RiderInfo = ({ customerId }) => {
     console.log('Saving changes:', formData);
   };
 
+  const handleActivateUser = async () => {
+    try {
+      console.log('activating user...');
+      await activateRider(riderId)  
+    } catch (error) {
+      console.error('Error activating user:', error);
+    }
+  }
+
+  const handleDeactivateUser = async () => {
+    try {
+      console.log('deactivating user...');
+      await deactivateRider(riderId);
+      // Optionally, you can update the local state to reflect the change
+      setFormData(prev => ({
+        ...prev,
+        isActive: false
+      }));
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
 
       {/* Profile Header */}
       <ProfileHeader
-        name="James Okpeba"
-        email="user@tiklog.com"
+        name={`${formData.firstName} ${formData.lastName}`}
+        email={formData.email}
         imageUrl="/Avatar3.png"
-        isActive={true}
-        onActivate={() => console.log('Activate user')}
-        onDeactivate={() => console.log('Deactivate user')}
+        isActive={formData.isActive}
+        onActivate={handleActivateUser}
+        onDeactivate={handleDeactivateUser}
       />
 
       {/* Navigation Tabs */}

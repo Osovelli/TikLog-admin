@@ -133,13 +133,14 @@ export const VendorPage = () => {
     return value;
   };
 
-  const handleViewClick = (user) => {
-    navigate(`/vendors/${user.id}`);
+  const handleViewClick = (vendor) => {
+    console.log('View clicked:', user);
   };
 
 
-  const handleManageUser = (user) => {
-    console.log('Manage password clicked:', row);
+  const handleManageUser = (vendor) => {
+    console.log('Manage password clicked:', vendor);
+    navigate(`/vendors/${vendor.id}`)
   };
 
   const handleDeleteClick = (row) => {

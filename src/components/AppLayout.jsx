@@ -23,12 +23,16 @@ export const AppLayout = ({children, icon, title}) => {
     return (
       <div className="flex h-screen w-full bg-gray-50">
         {/* Logo for larger screens - positioned above sidebar */}
-        <div className="hidden md:block fixed top-0 left-0 w-64 bg-white z-50 p-6">
-          <Logo />
-          <p className='text-xs'>ADMINISTRATIVE PANEL</p>
-        </div>
+        <div className="hidden md:flex md:items-end gap-2 fixed top-0 left-0 w-64 bg-white z-50 p-6 underline border-b">
+          <img 
+            src='/tiklogs logo_blue.png' 
+            className="w-auto h-8 object-contain shrink-0" 
+            alt="Tiklogs Logo"
+          />
+          <p className='text-xs font-medium text-gray-700'>TIKLOG ADMINISTRATIVE PANEL</p>
+          </div>
 
-        {/* Sidebar */}
+          {/* Sidebar */}
         <div className="md:pt-20">
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} data={userCount?.data} />
         </div>

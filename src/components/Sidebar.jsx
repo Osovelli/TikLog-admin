@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useEffect } from "react"
 import { User, Package, Truck, Settings, ChevronDown } from "lucide-react"
 import { PiNoteLight } from "react-icons/pi"

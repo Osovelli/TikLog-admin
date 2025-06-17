@@ -7,7 +7,7 @@ export const ProfileHeader = ({
   name, 
   email, 
   imageUrl, 
-  isActive = true,
+  isActive,
   onActivate,
   onDeactivate 
 }) => {
@@ -26,7 +26,7 @@ export const ProfileHeader = ({
         <div className="relative">
           {/* Back Button */}
           <Link 
-            to="/customers" 
+            to={-1}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg text-gray-600 hover:text-gray-900 my-6 mx-2"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -55,6 +55,7 @@ export const ProfileHeader = ({
                 buttonVariant={'outlined'}
                 onClick={onDeactivate}
                 className="py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex-shrink w-44"
+                disabled={isActive === 'Inactive'}
               >
                 Deactivate user
               </CustomButton>
@@ -62,6 +63,7 @@ export const ProfileHeader = ({
                 buttonVariant={'primary'}
                 onClick={onActivate}
                 className="py-2 text-white bg-[#27115F] rounded-lg  flex-shrink w-44"
+                disabled={isActive === 'Active'}
               >
                 Activate user
               </CustomButton>

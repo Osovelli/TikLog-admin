@@ -1,23 +1,59 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, ChevronDown, MapPin } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ProfileForm } from '@/components/ProfileForm';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { CustomerDeliveries } from '@/components/_CustomerComponents/CustomerDeliveries';
 import { CustomerWalletInfo } from '@/components/_CustomerComponents/CustomerWalletInfo';
+import useUserStore from '@/store/UserStore';
 
 export const CustomerInfo = ({ customerId }) => {
+  const location = useLocation();
+  const userid = location.pathname.split('/').pop();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
-    firstName: 'Ojemba',
-    lastName: 'Taiwo-Kudus',
-    email: 'user@tiklog.com',
-    phone: '8100441503',
-    countryCode: '+234',
-    birthDate: '22-02-2022',
-    gender: 'Male',
-    address: '56 Opebi road, Sabo Yaba.'
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    countryCode: '',
+    birthDate: '',
+    gender: '',
+    address: '',
+    isActive: null,
   });
+
+
+  const { getUserById, activateUser, deactivateUser, loading } = useUserStore()
+
+  // Fetch user data when component mounts
+  useEffect(() => {
+    console.log('Fetching user data for ID:', userid);
+    console.log(typeof userid, userid);
+    console.log("FORMDATA:", formData)
+    const fetchUserData = async() => {
+      try {
+        const userData = await getUserById(userid);
+        if (userData) {
+          setFormData({
+            firstName: userData.firstname || 'Ojemba',
+            lastName: userData.lastname || 'Taiwo-Kudus',
+            email: userData.email || 'user@tiklog.com',
+            phone: userData.phone_number || '8100441503',
+            countryCode: userData.country_code || '+234',
+            birthDate: userData.date_of_birth || '22-02-2022',
+            gender: userData.gender || 'Male',
+            address: userData.address || '56 Opebi road, Sabo Yaba.',
+            isActive: userData.status || false,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchUserData();
+  }, [getUserById, userid]);
+
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -29,6 +65,29 @@ export const CustomerInfo = ({ customerId }) => {
   const handleSaveChanges = () => {
     console.log('Saving changes:', formData);
   };
+
+  const handleActivateUser = async () => {
+    try {
+      console.log('activating user...');
+      await activateUser(userid)  
+    } catch (error) {
+      console.error('Error activating user:', error);
+    }
+  }
+
+  const handleDeactivateUser = async () => {
+    try {
+      console.log('deactivating user...');
+      await deactivateUser(userid);
+      // Optionally, you can update the local state to reflect the change
+      /* setFormData(prev => ({
+        ...prev,
+        isActive: false
+      })); */
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -45,12 +104,12 @@ export const CustomerInfo = ({ customerId }) => {
 
       {/* Profile Header */}
       <ProfileHeader
-        name="Ojemba Taiwo-Kudus"
-        email="user@tiklog.com"
-        imageUrl="/Avatar2.png"
-        isActive={true}
-        onActivate={() => console.log('Activate user')}
-        onDeactivate={() => console.log('Deactivate user')}
+        name={`${formData.firstName} ${formData.lastName}`}
+        email={formData.email}
+        imageUrl={"/Avatar2.png"}
+        isActive={formData.isActive}
+        onActivate={handleActivateUser}
+        onDeactivate={handleDeactivateUser}
       />
 
       {/* <div className="bg-yellow-400 rounded-lg p-6 mb-6">

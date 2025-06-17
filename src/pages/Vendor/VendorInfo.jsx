@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProfileForm } from '@/components/ProfileForm';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -11,23 +11,27 @@ import { RiderWalletInfo } from '@/components/_VendorComponents/RiderWalletInfo'
 import { LicenseForm } from '@/components/_VendorComponents/LicenseInfo';
 import { VehiclesInfo } from '@/components/_VendorComponents/VehicleInfo';
 import { Requests } from '@/components/_VendorComponents/AllRequests';
+import useUserStore from '@/store/UserStore';
+import { useLocation } from 'react-router';
 
 export const VendorInfo = ({ customerId }) => {
+  const location = useLocation();
+  const vendorId = location.pathname.split('/').pop();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
-    firstName: 'James',
-    lastName: 'Okpeba',
-    email: 'user@tiklog.com',
-    phone: '8100441503',
-    countryCode: '+234',
-    birthDate: '22-02-2022',
-    gender: 'Male',
-    address: '56 Opebi road, Sabo Yaba.',
-    startDate: '22-02-2022',
-    expiryDate: '22-02-2022',
-    businessName: 'ABC Inc',
-    businessType: "Logistics",
-    businessRegNumber: '103222455'
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    countryCode: '',
+    birthDate: '',
+    gender: '',
+    address: '',
+    startDate: '',
+    expiryDate: '',
+    businessName: '',
+    businessType: "",
+    businessRegNumber: ''
   });
 
   const tabs = [
@@ -40,6 +44,40 @@ export const VendorInfo = ({ customerId }) => {
     { id: 'riders', label: 'Riders' },
   ]
 
+  const { getVendorById, activateVendor, deactivateVendor, loading } = useUserStore();
+
+  // Fetch user data when component mounts
+  useEffect(() => {
+    console.log('Fetching user data for ID:', vendorId);
+    console.log(typeof vendorId, vendorId);
+    const fetchVendorData = async () => { 
+      try {
+        const vendorData = await getVendorById(vendorId);
+        if (vendorData) {
+          setFormData({
+            firstName: vendorData.firstname || 'James',
+            lastName: vendorData.lastname || 'Okpeba',
+            email: vendorData.email || 'user@tiklog.com',
+            phone: vendorData.phone_number || '8100441503',
+            countryCode: vendorData.country_code || '+234',
+            birthDate: vendorData.date_of_birth || '22-02-2022',
+            gender: vendorData.gender || 'Male',
+            address: vendorData.address || '56 Opebi road, Sabo Yaba.',
+            startDate: vendorData.start_date || '22-02-2022',
+            expiryDate: vendorData.expiry_date || '22-02-2022',
+            businessName: vendorData.business_name || 'ABC Inc',
+            businessType: vendorData.business_type || "Logistics",
+            businessRegNumber: vendorData.business_reg_number || '103222455'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchVendorData();
+  }, [getVendorById, vendorId]);
+
+  // Handle input changes for profile and organisation forms
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -60,17 +98,40 @@ export const VendorInfo = ({ customerId }) => {
     console.log('Saving changes:', formData);
   };
 
+  const handleActivateVendor = async () => {
+    try {
+      console.log('activating vendor...');
+      await activateVendor(vendorId)  
+    } catch (error) {
+      console.error('Error activating Vendor:', error);
+    }
+  }
+
+  const handleDeactivateVendor = async () => {
+    try {
+      console.log('deactivating vendor...');
+      await deactivateVendor(vendorId);
+      // Optionally, you can update the local state to reflect the change
+      /* setFormData(prev => ({
+        ...prev,
+        isActive: false
+      })); */
+    } catch (error) {
+      console.error('Error deactivating vendor:', error);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
 
       {/* Profile Header */}
       <ProfileHeader
-        name="James Okpeba"
-        email="user@tiklog.com"
+        name={`${formData.firstName} ${formData.lastName}`}
+        email={formData.email}
         imageUrl="/Avatar3.png"
-        isActive={true}
-        onActivate={() => console.log('Activate user')}
-        onDeactivate={() => console.log('Deactivate user')}
+        isActive={formData.isActive}
+        onActivate={handleActivateVendor}
+        onDeactivate={handleDeactivateVendor}
       />
 
       {/* Navigation Tabs */}
