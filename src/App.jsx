@@ -27,7 +27,7 @@ import { ChatManagementPage } from './pages/Chat/ChatManagementPage';
 import { RolesPermissionsPage } from './pages/Roles/RolesAndPermissionPage';
 import { SettingsPageLayout } from './pages/Settings/SettingsPage';
 import { AboutUs } from './components/_SettingsComponents/TabsComponent/AboutUs';
-import { Terms } from './components/_SettingsComponents/TabsComponent/Terms';
+import TermsAndConditionSettings from './components/_SettingsComponents/TermsAndConditionSettings';
 import { PrivacyPolicy } from './components/_SettingsComponents/TabsComponent/PrivacyPolicy';
 import { DeliveryAndReturnPolicy } from './components/_SettingsComponents/TabsComponent/DeliveryPolicy';
 import FAQ from './components/_SettingsComponents/TabsComponent/FAQ';
@@ -36,6 +36,7 @@ import CreateNewsletter from './components/_SettingsComponents/CreateNewsletter'
 import { Toaster } from 'react-hot-toast';
 import { RolesPage } from './pages/Roles/RolesPage';
 import PageSettings from './components/_SettingsComponents/TabsComponent/PageSettings';
+import { Terms } from './components/_SettingsComponents/TabsComponent/Terms';
 
 
 function App() {

@@ -1,4 +1,4 @@
-import { RichTextEditor } from "@/components/RichTextEditor"
+import { RichTextEditor } from "../RichTextEditor"
 import { useState, useEffect } from "react"
 import useContentStore from "@/store/ContentStore"
 import { Button } from "@/components/ui/button"
@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Save, AlertCircle, Eye, Trash2 } from "lucide-react"
 import { toast } from "react-hot-toast"
 
-export const AboutUs = () => {
+export const GenericContentManager = ({ contentName, title, maxLength = 2000, placeholder = "Start writing..." }) => {
   const [content, setContent] = useState("")
   const [hasChanges, setHasChanges] = useState(false)
   const [initialLoad, setInitialLoad] = useState(true)
@@ -26,7 +26,6 @@ export const AboutUs = () => {
     closeErrorModal,
   } = useContentStore()
 
-  const contentName = "about-us"
   const currentContent = getContentByName(contentName)
   const hasExistingContent = contentExists(contentName)
 
@@ -50,16 +49,7 @@ export const AboutUs = () => {
     }
 
     loadContent()
-  }, [getContent])
-
-  // Debug: Log current content state
-  useEffect(() => {
-    console.log("Store state for", contentName, ":", {
-      exists: hasExistingContent,
-      content: currentContent,
-      allContent: Object.keys(contentStore),
-    })
-  }, [currentContent, hasExistingContent, contentStore])
+  }, [getContent, contentName])
 
   const handleContentChange = (newContent) => {
     setContent(newContent)
@@ -121,7 +111,7 @@ export const AboutUs = () => {
   if (initialLoad) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">About Us</h1>
+        <h1 className="text-2xl font-bold">{title}</h1>
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin" />
           <span className="ml-2">Loading content...</span>
@@ -133,7 +123,7 @@ export const AboutUs = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">About Us</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={togglePreview} className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
@@ -191,12 +181,12 @@ export const AboutUs = () => {
       )}
 
       {/* Debug info - remove in production */}
-      {/* {process.env.NODE_ENV === "development" && (
+      {process.env.NODE_ENV === "development" && (
         <div className="bg-gray-100 p-2 rounded text-xs">
           <strong>Debug:</strong> Content Exists: {hasExistingContent.toString()} | Has Changes: {hasChanges.toString()}{" "}
           | Content Length: {content.length} | Action: {hasExistingContent ? "UPDATE" : "CREATE"}
         </div>
-      )} */}
+      )}
 
       {showErrorModal && error && (
         <Alert variant="destructive">
@@ -232,8 +222,8 @@ export const AboutUs = () => {
           <RichTextEditor
             value={content}
             onChange={handleContentChange}
-            maxLength={1245}
-            placeholder="Tell your visitors about your company, your story, and what makes you unique..."
+            maxLength={maxLength}
+            placeholder={placeholder}
             disabled={loading}
           />
         </div>
