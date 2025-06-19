@@ -11,7 +11,12 @@ import { cn } from "@/lib/utils"
 const SidebarItem = ({ icon, text, routeName, children }) => {
   const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
-  const active = location.pathname === `/${routeName}`
+  const active =
+  routeName === ""
+    ? location.pathname === "/"
+    : location.pathname === `/${routeName}` || location.pathname.startsWith(`/${routeName}/`);
+
+
   const hasChildren = Boolean(children)
 
   // Check if any child routes are active
@@ -52,7 +57,10 @@ const SidebarItem = ({ icon, text, routeName, children }) => {
 
 const NestedSidebarItem = ({ icon, text, routeName, count, isNested = false }) => {
   const location = useLocation()
-  const active = location.pathname.startsWith(`/${routeName}`)
+  const active =
+  location.pathname === `/${routeName}` || location.pathname.startsWith(`/${routeName}/`);
+
+
 
   return (
     <Link to={`/${routeName}`}>
@@ -169,7 +177,7 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
           {/* Navigation Items */}
           <div className="flex-1 px-4 mt-10 sm:mt-2 overflow-y-auto">
             <nav className="space-y-1">
-              <NestedSidebarItem icon={<FaDesktop size={20} />} text="Dashboard" routeName={"dashboard"} />
+              <NestedSidebarItem icon={<FaDesktop size={20} />} text="Dashboard" routeName={""} />
 
               <SidebarItem icon={<User size={20} />} text="User Management" routeName="profile">
                 {userManagementData.length > 0 ? (
