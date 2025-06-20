@@ -153,17 +153,17 @@ export const RiderPage = () => {
 
   const ActionButtons = ({ row }) => (
     <div className="flex items-center gap-2">
-      <button 
+      {/* <button 
         onClick={() => handleViewClick(row)}
         className="text-indigo-600 hover:text-indigo-800"
       >
-        <Eye size={16} />
-      </button>
+        <PasscodeLock size={18} color={'#23AA26'} />
+      </button> */}
       <button
         onClick={() => handleManageUser(row)}
         className="text-blue-600 hover:text-blue-900 w-full flex items-center justify-center bg-white"
       >
-        <PasscodeLock size={18} color={'#23AA26'} />
+        <Eye size={16} />
       </button>
       <button 
         /* onClick={() => onDeleteClick?.(item)} */
@@ -251,13 +251,14 @@ export const RiderPage = () => {
                 ))}
                 </div>
               </div>
-              <CustomButton
+              {/* add new rider button */}
+              {/* <CustomButton
                 onClick={() => console.log('Add New clicked')}
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
                 <Plus size={20} />
                 <span>Add New</span>
-              </CustomButton>
+              </CustomButton> */}
             </div>
     
             <div className="overflow-x-auto">

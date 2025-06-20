@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axiosInstance from "@/lib/utils/axiosInstance";
-import { act } from "react";
 
 const useUserStore = create((set) => ({
   userCount: null,
@@ -60,6 +59,22 @@ const useUserStore = create((set) => ({
       console.error("Get Single User failed", error);
       toast.error(error.response?.data?.message || "An error occurred while fetching the user");
       set({ loading: false, error: 'Get Single User failed. Please try again.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
+  deleteUser: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.delete(`/admin/user_management/all_users/${id}`);
+      console.log("DELETE USER RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("User deleted successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Delete User failed:", error)
+      toast.error(error.response?.data?.message || "An error occurred while deleting the user");
+      set({ loading: false, error: 'Delete Single User failed.', showErrorModal: true });
       throw error; // Re-throw to handle in component if needed
     }
   },

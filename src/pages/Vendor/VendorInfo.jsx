@@ -13,6 +13,7 @@ import { VehiclesInfo } from '@/components/_VendorComponents/VehicleInfo';
 import { Requests } from '@/components/_VendorComponents/AllRequests';
 import useUserStore from '@/store/UserStore';
 import { useLocation } from 'react-router';
+import { AppLayout } from '@/components/AppLayout';
 
 export const VendorInfo = ({ customerId }) => {
   const location = useLocation();
@@ -122,7 +123,8 @@ export const VendorInfo = ({ customerId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <AppLayout showBackButton={false}>
+    <div className="min-h-screen bg-gray-50 md:px-6">
 
       {/* Profile Header */}
       <ProfileHeader
@@ -135,7 +137,7 @@ export const VendorInfo = ({ customerId }) => {
       />
 
       {/* Navigation Tabs */}
-      <div className="border-b mb-6">
+      <div className="my-4">
         <Swiper
           slidesPerView="auto"
           spaceBetween={32}
@@ -210,5 +212,6 @@ export const VendorInfo = ({ customerId }) => {
         <Riders />
       )}
     </div>
+    </AppLayout>
   );
 };

@@ -6,6 +6,7 @@ import { ProfileHeader } from '@/components/ProfileHeader';
 import { CustomerDeliveries } from '@/components/_CustomerComponents/CustomerDeliveries';
 import { CustomerWalletInfo } from '@/components/_CustomerComponents/CustomerWalletInfo';
 import useUserStore from '@/store/UserStore';
+import { AppLayout } from '@/components/AppLayout';
 
 export const CustomerInfo = ({ customerId }) => {
   const location = useLocation();
@@ -90,7 +91,8 @@ export const CustomerInfo = ({ customerId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <AppLayout showBackButton={false} showAppHeader={true}>
+    <div className="min-h-screen bg-gray-50 md:px-6">
       {/* Header */}
       {/* <div className="mb-8">
         <Link 
@@ -139,7 +141,7 @@ export const CustomerInfo = ({ customerId }) => {
       </div>
  */}
       {/* Navigation Tabs */}
-      <div className="border-b mb-6">
+      <div className="my-4">
         <nav className="flex gap-8">
           {[
             { id: 'profile', label: 'Profile Information' },
@@ -182,5 +184,6 @@ export const CustomerInfo = ({ customerId }) => {
         <CustomerWalletInfo />
       )}
     </div>
+    </AppLayout>
   );
 };

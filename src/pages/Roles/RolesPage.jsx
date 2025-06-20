@@ -401,7 +401,7 @@ const SingleRole = selectedRole?.data;
             onClick={()=>navigate('/admin-roles')}
           >
             <UserCircleIcon className="w-4 h-4 mr-2" />
-            Admin Permission
+            Admin Users
           </Button>
           {/* <Button 
             variant="outline" 

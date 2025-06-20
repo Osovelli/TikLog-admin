@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { LoginPage } from './pages/AuthPages/LoginPage';
 import { Signup } from './pages/AuthPages/Signup';
 import { ForgotPassword} from './pages/AuthPages/ForgotPassword';
@@ -37,43 +37,213 @@ import { Toaster } from 'react-hot-toast';
 import { RolesPage } from './pages/Roles/RolesPage';
 import PageSettings from './components/_SettingsComponents/TabsComponent/PageSettings';
 import { Terms } from './components/_SettingsComponents/TabsComponent/Terms';
+//import useAuthStore from './store/authStore';
+//import { useEffect } from 'react';
+//import { RedirectAuthenticatedUser } from './lib/hooks/UseAuthRedirect';
 
 
 function App() {
+
+  const ProtectedRoute = ({ children }) => {
+	//const { isAuthenticated, user } = useAuthStore();
+    
+    const token = localStorage.getItem('token')
+    // (isAuthenticated && user ) {
+    if (!token) {
+      return <Navigate to='/signin' replace />;
+    }
+
+    return children;
+  };
+
+  const RedirectAuthenticatedUser = ({ children }) => {
+    const token = localStorage.getItem('token')
+    // (isAuthenticated && user ) {
+    if (token) {
+      return <Navigate to='/' replace />;
+    }
+	return children;
+};
+
     return(
         <BrowserRouter>
             <Routes>
-                <Route path='/signup' element={<Signup /> } />        
-                <Route path='/signin' element={<LoginPage />} />
+                <Route 
+                path='/signin' 
+                element={
+                  <RedirectAuthenticatedUser>
+                    <LoginPage />
+                  </RedirectAuthenticatedUser>
+                  } 
+                />
+                {/* <Route path='/signup' element={<Signup /> } />              
                 <Route path='/forgot-password' element={<ForgotPassword />} />
                 <Route path='/reset-password' element={<ResetPassword />} />
                 <Route path='/reset-password/success' element={<ResetPasswordSuccess />} />
                 <Route path='/reset-password-otp' element={<ResetPasswordOtp />} />
                 <Route path='/signup/success' element={<SignUpSuccess />} />
                 <Route path='/signup/complete' element={<SignupComplete />} />
-                <Route path='/signup-otp' element={<SignUpOTP/>} />
-                {/* <Route path='/dashboard' element={<HomePage />} /> */}
-                <Route path='/' element={<HomePage />} />
-                <Route path='/customers' element={<CustomerPage />} />
-                <Route path='/customers/:id' element={<CustomerInfo/>} />
-                <Route path='/riders' element={<RiderPage />} />
-                <Route path='/riders/:id' element={<RiderInfo/>} />
-                <Route path='/vendors' element={<VendorPage />} />
-                <Route path='/vendors/:id' element={<VendorInfo />} />
+                <Route path='/signup-otp' element={<SignUpOTP/>} /> */}
+
+                {/* Protected Routes - Require authentication */}
+                <Route 
+                path='/' 
+                element={
+                  <ProtectedRoute>
+                    <HomePage />
+                  </ProtectedRoute>
+                } />
+                <Route 
+                path='/customers' 
+                element={
+                  <ProtectedRoute>
+                    <CustomerPage />
+                  </ProtectedRoute>
+                  } />
+                <Route 
+                path='/customers/:id' 
+                element={
+                  <ProtectedRoute>
+                    <CustomerInfo/>
+                    </ProtectedRoute>
+                    } 
+                  />
+                <Route 
+                path='/riders' 
+                element={
+                  <ProtectedRoute>
+                    <RiderPage />
+                    </ProtectedRoute>
+                    } 
+                  />
+                <Route 
+                path='/riders/:id' 
+                element={
+                  <ProtectedRoute>
+                    <RiderInfo/>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/vendors' 
+                element={
+                  <ProtectedRoute>
+                    <VendorPage />
+                  </ProtectedRoute>
+                  } 
+                  />
+                <Route 
+                path='/vendors/:id' 
+                element={
+                  <ProtectedRoute>
+                    <VendorInfo />
+                    </ProtectedRoute>
+                  } 
+                />
                 {/* <Route path='/delivery' element={<DeliveryPage />} /> */}
-                <Route path='/deliveries' element={<DeliveryPage />} />
-                <Route path='/deliveries/:id' element={<DeliveryDetail />} />
-                <Route path='/wallet' element={<Wallet />} />
-                <Route path='/profile' element={<Profile />} />
-                <Route path='/notification' element={<Notification />} />
+                <Route 
+                path='/deliveries' 
+                element={
+                  <ProtectedRoute>
+                    <DeliveryPage />
+                  </ProtectedRoute>
+                } />
+                <Route 
+                path='/deliveries/:id' 
+                element={
+                  <ProtectedRoute>
+                    <DeliveryDetail />
+                  </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/wallet' 
+                element={
+                  <ProtectedRoute>
+                    <Wallet />
+                  </ProtectedRoute>
+                    } 
+                  />
+                <Route 
+                path='/profile' 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                    } 
+                  />
+                <Route 
+                path='/notification' 
+                element={
+                  <ProtectedRoute>
+                    <Notification />
+                  </ProtectedRoute>
+                  } 
+                />
                 {/* <Route path='/settings' element={<SettingsPage />} /> */}
-                <Route path='/rider' element={<VehicleAndRider />} />
-                <Route path='/transaction' element={<TransactionPage />} />
-                <Route path='/vehicle' element={<VehicleManagementPage />} />
-                <Route path='/chat' element={<ChatManagementPage />} />
-                <Route path='/admin-roles' element={<RolesPermissionsPage />} />
-                <Route path='/roles-management' element={<RolesPage />} />
-                <Route path="/settings" element={<SettingsPageLayout />}>
+                <Route 
+                path='/rider' 
+                element={
+                  <ProtectedRoute>
+                    <VehicleAndRider />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/transaction' 
+                element={
+                  <ProtectedRoute>
+                    <TransactionPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/vehicle' 
+                element={
+                  <ProtectedRoute>
+                    <VehicleManagementPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/chat' 
+                element={
+                  <ProtectedRoute>
+                    <ChatManagementPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/admin-users' 
+                element={
+                  <ProtectedRoute>
+                    <RolesPermissionsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/roles-management' 
+                element={
+                  <ProtectedRoute>
+                    <RolesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path='/terms-and-conditions' 
+                element={
+                  <ProtectedRoute>
+                    <TermsAndConditionSettings />
+                  </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                path="/settings" 
+                element={
+                  <ProtectedRoute>
+                    <SettingsPageLayout />
+                  </ProtectedRoute>
+                }>
                     <Route index element={<Navigate to="/settings/about-us" replace />} />
                     <Route path="about-us" element={<AboutUs />} />
                     <Route path="terms" element={<Terms />} />
@@ -83,7 +253,14 @@ function App() {
                     <Route path="newsletter" element={<Newsletter />} />
                     <Route path="pages" element={<PageSettings />} /> 
                 </Route>
-                <Route path="/settings/newsletter/create" element={<CreateNewsletter />} />
+                <Route 
+                path="/settings/newsletter/create" 
+                element={
+                  <ProtectedRoute>
+                    <CreateNewsletter />
+                  </ProtectedRoute>
+                  } 
+                />
             </Routes>
              <Toaster />
         </BrowserRouter>

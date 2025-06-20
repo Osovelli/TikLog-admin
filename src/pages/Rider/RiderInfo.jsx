@@ -11,6 +11,7 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import { useLocation } from 'react-router';
 import useUserStore from '@/store/UserStore';
+import { AppLayout } from '@/components/AppLayout';
 
 export const RiderInfo = () => {
   const location = useLocation();
@@ -105,7 +106,8 @@ export const RiderInfo = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <AppLayout showBackButton={false}>
+    <div className="min-h-screen bg-gray-50 md:px-6">
 
       {/* Profile Header */}
       <ProfileHeader
@@ -118,7 +120,7 @@ export const RiderInfo = () => {
       />
 
       {/* Navigation Tabs */}
-      <div className="border-b mb-6">
+      <div className="my-4">
         <Swiper
           slidesPerView="auto"
           spaceBetween={32}
@@ -202,5 +204,6 @@ export const RiderInfo = () => {
         <VehiclesInfo />
       )}
     </div>
+    </AppLayout>
   );
 };

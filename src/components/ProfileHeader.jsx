@@ -50,7 +50,7 @@ export const ProfileHeader = ({
                 <p className="text-gray-500">{email}</p>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row gap-2">
+            <div className="flex flex-row gap-2">
               <CustomButton
                 buttonVariant={'outlined'}
                 onClick={onDeactivate}

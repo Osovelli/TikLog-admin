@@ -6,7 +6,7 @@ import { CustomButton } from './CustomButton';
 import { ArrowLeftCircle } from 'lucide-react';
 import useUserStore from '@/store/UserStore';
 
-export const AppLayout = ({children, icon, title}) => {
+export const AppLayout = ({children, icon, title, showBackButton=true, showAppHeader=true}) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     const { userCount, loading, getUserCount } = useUserStore(); 
@@ -23,29 +23,33 @@ export const AppLayout = ({children, icon, title}) => {
     return (
       <div className="flex h-screen w-full bg-gray-50">
         {/* Logo for larger screens - positioned above sidebar */}
-        <div className="hidden md:flex md:items-end gap-2 fixed top-0 left-0 w-64 bg-white z-50 p-6 underline border-b">
+        <div className="hidden md:flex md:items-end fixed top-0 left-0 w-64 bg-white z-50 p-6 underline border-b">
           <img 
             src='/tiklogs logo_blue.png' 
             className="w-auto h-8 object-contain shrink-0" 
             alt="Tiklogs Logo"
           />
-          <p className='text-xs font-medium text-gray-700'>TIKLOG ADMINISTRATIVE PANEL</p>
+          <p className='text-xs font-medium text-gray-700'>ADMIN</p>
           </div>
 
           {/* Sidebar */}
-        <div className="md:pt-20">
+        <div className="md:pt-20 pt-6">
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} data={userCount?.data} />
         </div>
   
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Fixed header */}
+          {showAppHeader && 
           <AppHeader 
             icon={icon} 
             name={title} 
-            toggleSidebar={toggleSidebar} 
+            toggleSidebar={toggleSidebar}
+            showBack={showBackButton}
+            
           /> 
-          
+          }
+
           {/* Scrollable content area */}
           <div className="flex-1 overflow-auto pt-16">
             {children}

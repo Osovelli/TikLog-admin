@@ -176,7 +176,7 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
 
           {/* Navigation Items */}
           <div className="flex-1 px-4 mt-10 sm:mt-2 overflow-y-auto">
-            <nav className="space-y-1">
+            <nav className="space-y-1 mt-2">
               <NestedSidebarItem icon={<FaDesktop size={20} />} text="Dashboard" routeName={""} />
 
               <SidebarItem icon={<User size={20} />} text="User Management" routeName="profile">
@@ -209,7 +209,7 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
 
           {/* User Profile Section */}
           <div className="px-4">
-            <NestedSidebarItem icon={<Settings size={20} />} text="Roles and Permission" routeName="admin-roles" />
+            <NestedSidebarItem icon={<Settings size={20} />} text="Roles and Permission" routeName="admin-users" />
             <NestedSidebarItem icon={<FaDesktop size={20} />} text="Website Settings" routeName="settings" />
             <SidebarProfile name="Tiklog Admin" email="Admin@tiklog.com" avatarUrl="/Avatar1.png" />
           </div>

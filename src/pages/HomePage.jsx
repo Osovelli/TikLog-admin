@@ -49,7 +49,10 @@ export const HomePage = () => {
   }, [openModal, closeModal]);
 
   return (
-    <AppLayout title={'Hello Admin'} >
+    <AppLayout 
+    title={'Hello Admin'}
+    showBackButton={false}
+    >
       <div className="p-8 mt-10">
         <HighlightSection />
         <UsersOverview />

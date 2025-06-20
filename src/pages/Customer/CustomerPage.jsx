@@ -1,5 +1,3 @@
-"use client"
-
 import { AppLayout } from "@/components/AppLayout"
 import { CustomButton } from "@/components/CustomButton"
 import { Table } from "@/components/Table"
@@ -24,7 +22,7 @@ export const CustomerPage = () => {
   const [activeTab, setActiveTab] = useState("all")
   const navigate = useNavigate()
 
-  const { allUsers, loading, getAllUsers, getUserById } = useUserStore()
+  const { allUsers, loading, getAllUsers, deleteUser } = useUserStore()
 
   useEffect(() => {
     if (allUsers === null) {
@@ -136,23 +134,24 @@ export const CustomerPage = () => {
   const handleDeleteClick = (row) => {
     console.log("Delete clicked:", row)
     // Add your delete logic here
+    deleteUser(row.id)
   }
 
   const ActionButtons = ({ row }) => (
     <div className="flex items-center gap-2">
-      <button
+      {/* <button
         onClick={() => handleViewClick(row)}
         className="text-indigo-600 hover:text-indigo-800 p-1 rounded"
         title="View Customer"
       >
-        <Eye size={16} />
-      </button>
+       <PasscodeLock size={18} color={"#23AA26"} /> 
+      </button> */}
       <button
         onClick={() => handleManageUser(row)}
         className="text-green-600 hover:text-green-800 p-1 rounded"
         title="Manage Customer"
       >
-        <PasscodeLock size={18} color={"#23AA26"} />
+        <Eye size={16} />
       </button>
       <button
         onClick={() => handleDeleteClick(row)}
@@ -167,7 +166,9 @@ export const CustomerPage = () => {
   // Show loading state
   if (loading) {
     return (
-      <AppLayout title="Customer">
+      <AppLayout 
+      title="Customer"
+      >
         <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="animate-pulse">
@@ -207,13 +208,14 @@ export const CustomerPage = () => {
                 ))}
               </div>
             </div>
-            <CustomButton
+            {/* add new customer button */}
+            {/* <CustomButton
               onClick={() => console.log("Add New clicked")}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
               <Plus size={20} />
               <span>Add New</span>
-            </CustomButton>
+            </CustomButton> */}
           </div>
 
           <div className="overflow-x-auto">

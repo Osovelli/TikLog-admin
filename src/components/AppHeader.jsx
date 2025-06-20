@@ -1,14 +1,15 @@
 import { ArrowLeftCircle, Bell, CheckCircle2, HelpCircle, Menu, Search, Settings, Tag, TagIcon } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { AnimatePresence, motion } from 'framer-motion';
 import { NotificationOverlay } from './NotificationOverlay';
 import { NotificationItem } from './NotificationItem';
 import { Logo } from '@/icon/Icons'
 import { CustomButton } from './CustomButton';
-import { Navigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 
-export const AppHeader = ({icon, name, toggleSidebar}) => {
+export const AppHeader = ({icon, name, toggleSidebar, showBack}) => {
+  const navigate = useNavigate();
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [notifications, setNotifications] = useState([
     {
@@ -67,7 +68,7 @@ export const AppHeader = ({icon, name, toggleSidebar}) => {
         onClose={() => setIsOverlayVisible(false)} 
       />
       
-      <div className='fixed top-0 left-0 right-0 bg-white border-b shadow-sm dark:bg-gray-900 px-4 sm:px-8 py-4 flex items-center z-40 h-16 md:ml-64'>
+      <div className='fixed bg-[#1F1F76] top-0 left-0 right-0 sm:bg-white border-b shadow-sm dark:bg-gray-900 px-4 sm:px-8 py-4 flex items-center justify-between z-40 h-16 md:ml-64'>
         {/* Left section with hamburger and logo for mobile */}
         <div className='flex items-center md:hidden'>
           {/* <button
@@ -84,15 +85,32 @@ export const AppHeader = ({icon, name, toggleSidebar}) => {
              <Menu size={24} className="text-black dark:text-white" />
           </CustomButton>
           {<div className="mx-4">
-            <Logo />
-            <p className='text-xs'>ADMINISTRATIVE PANEL</p>
+            {/* <Logo /> */}
+            {/* <p className='text-xs'>ADMINISTRATIVE PANEL</p> */}
+           
           </div>}
         </div>
 
+        <div className='sm:hidden'>
+         <img 
+            src='/tiklogs logo_white.png' 
+            className="w-auto h-8 object-contain shrink-0" 
+            alt="Tiklogs Logo"
+          />
+        </div>
+
         {/* Center/Left section with page icon and title */}
-        <CustomButton className={"hidden md:flex items-center p-2 bg-white hover:bg-gray-100 rounded-full"} onClick={Navigate(-1)}>
+
+        {
+          showBack && 
+          <CustomButton 
+        className={"hidden md:flex items-center p-2 bg-white hover:bg-gray-100 rounded-full"} 
+        onClick={()=> {navigate(-1)}}
+        >
           <ArrowLeftCircle size={24} className="text-black" />
         </CustomButton>
+        }
+
         <div className='hidden md:flex items-center dark:text-white'>
           {icon}
           <span className="ml-3 text-2xl font-semibold">{name}</span>
