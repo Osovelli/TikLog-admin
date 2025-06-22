@@ -156,14 +156,14 @@ function App() {
                   </ProtectedRoute>
                   } 
                 />
-                <Route 
+                {/* <Route 
                 path='/wallet' 
                 element={
                   <ProtectedRoute>
                     <Wallet />
                   </ProtectedRoute>
                     } 
-                  />
+                  /> */}
                 <Route 
                 path='/profile' 
                 element={

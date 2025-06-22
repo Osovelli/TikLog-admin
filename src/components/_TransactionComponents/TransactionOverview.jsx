@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { Link2, Check, X } from 'lucide-react';
 import { Card } from "@/components/ui/card"
+import useWalletStore from '@/store/WalletStore';
 
-const MetricCard = ({ icon, value, label }) => (
+/* const MetricCard = ({ icon, value, label }) => (
   <div className="bg-white p-4 border-b lg:border-b-0 lg:border-r mt-4 ml-2 lg:ml-0">
     <div className="flex items-start gap-4">
       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -34,9 +35,47 @@ const MetricCard = ({ icon, value, label }) => (
       </div>
     </div>
   </div>
-);
+); */
 
-const CustomTooltip = ({ active, payload, label }) => {
+const MetricCard = ({ icon, value, label, isLoading }) => (
+  <div className="bg-white p-4 border-b lg:border-b-0 lg:border-r mt-4 ml-2 lg:ml-0">
+    <div className="flex items-start gap-4">
+      <div
+        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+          icon === "N" ? "bg-gray-100" : icon === "check" ? "bg-green-100" : icon === "x" ? "bg-red-100" : "bg-gray-100"
+        }`}
+      >
+        {icon === "N" ? (
+          <span className="text-lg font-semibold text-gray-700">₦</span>
+        ) : icon === "check" ? (
+          <Check className="w-5 h-5 text-green-600" />
+        ) : icon === "x" ? (
+          <X className="w-5 h-5 text-red-600" />
+        ) : (
+          <div className="w-5 h-5 text-gray-600">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+        )}
+      </div>
+      <div>
+        <div className="text-2xl font-semibold">
+          {isLoading ? (
+            <div className="h-8 w-24 bg-gray-200 animate-pulse rounded"></div>
+          ) : icon === "N" ? (
+            `₦${value.toLocaleString()}.00`
+          ) : (
+            value.toLocaleString()
+          )}
+        </div>
+        <div className="text-sm text-gray-500">{label}</div>
+      </div>
+    </div>
+  </div>
+)
+
+/* const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-4 border rounded-lg shadow-lg">
@@ -59,10 +98,58 @@ const CustomTooltip = ({ active, payload, label }) => {
     );
   }
   return null;
-};
+}; */
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 border rounded-lg shadow-lg">
+        <p className="text-sm font-medium mb-2">{label}</p>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <p className="text-sm">Successful: {payload[0]?.value?.toLocaleString() || 0}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500" />
+            <p className="text-sm">Failed: {payload[1]?.value?.toLocaleString() || 0}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  return null
+}
 
 export const TransactionOverview = () => {
   const [selectedMonths, setSelectedMonths] = useState(12);
+  const { walletStats, transactionOverview, loading, fetchWalletStats, fetchTransactionOverview } = useWalletStore()
+
+  // Fetch transaction overview when period changes
+  useEffect(() => {
+    const periodMap = {
+      12: "12",
+      6: "6",
+      3: "3",
+    }
+    fetchTransactionOverview({ period: periodMap[selectedMonths] })
+  }, [selectedMonths, fetchTransactionOverview])
+
+  // Transform API data for chart
+  const chartData = useMemo(() => {
+    if (!transactionOverview?.monthly_data) {
+      return []
+    }
+
+    return transactionOverview?.monthly_data.map((monthData) => ({
+      month: monthData.monthShort || monthData.monthName?.substring(0, 1) || "M",
+      successful: monthData.successful_transactions || 0,
+      failed: monthData.failed_transactions || 0,
+      monthName: monthData.monthName,
+      year: monthData.year,
+    }))
+  }, [transactionOverview])
+
   
   const allData = [
     { month: 'J', successful: 15000, failed: 2000 },
@@ -79,16 +166,54 @@ export const TransactionOverview = () => {
     { month: 'D', successful: 14000, failed: 0 },
   ];
 
+
   const data = useMemo(() => {
     return allData.slice(-selectedMonths);
   }, [selectedMonths]);
 
-  const metrics = [
+  console.log('OLD DATA: ', data)
+  console.log('NEW DATA: ', chartData)
+
+  // Calculate metrics from API data
+  const metrics = useMemo(() => {
+    const stats = walletStats || {}
+    const overview = transactionOverview?.summary || {}
+
+    return [
+      {
+        icon: "N",
+        value: stats.total_amount_processed || overview.total_amount_processed || 0,
+        label: "Total Amount Processed",
+      },
+      {
+        icon: "document",
+        value: stats.total_transaction_count || overview.total_transactions || 0,
+        label: "Total Transactions",
+      },
+      {
+        icon: "check",
+        value: stats.success_transaction_count || overview.total_successful || 0,
+        label: "Successful Transactions",
+      },
+      {
+        icon: "x",
+        value: stats.failed_transaction_count || overview.total_failed || 0,
+        label: "Failed Transactions",
+      },
+    ]
+  }, [walletStats, transactionOverview])
+
+  /* const metrics = [
     { icon: 'N', value: 123096000, label: 'Total Amount Processed' },
     { icon: 'document', value: 1254, label: 'Total Transactions' },
     { icon: 'check', value: 1000, label: 'Successful Transactions' },
     { icon: 'x', value: 254, label: 'Failed Transactions' },
-  ];
+  ]; */
+
+  const handlePeriodChange = (months) => {
+    setSelectedMonths(months)
+  }
+
 
   return (
     <div className="space-y-6">
@@ -128,7 +253,27 @@ export const TransactionOverview = () => {
         </div>
 
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} stackOffset="none">
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(value) => `${value >= 1000 ? `${value / 1000}k` : value}`}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0, 0, 0, 0.05)" }} />
+                <Bar dataKey="successful" stackId="a" fill="#22C55E" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="failed" stackId="a" fill="#EF4444" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+{/*           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
@@ -153,7 +298,7 @@ export const TransactionOverview = () => {
               <Bar dataKey="successful" stackId="a" fill="#22C55E" radius={[4, 4, 0, 0]} />
               <Bar dataKey="failed" stackId="a" fill="#EF4444" radius={[4, 4, 0, 0]} />
             </BarChart>
-          </ResponsiveContainer>
+          </ResponsiveContainer> */}
         </div>
       </Card>
     </div>
