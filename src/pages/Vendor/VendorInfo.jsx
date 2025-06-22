@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ProfileForm } from '@/components/ProfileForm';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -34,6 +34,9 @@ export const VendorInfo = ({ customerId }) => {
     businessType: "",
     businessRegNumber: ''
   });
+  const [vendorDeliveries, setVendorDeliveries] = useState([]);
+  const [vendorWallet, setVendorWallet] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const tabs = [
     { id: 'profile', label: 'Profile Information' },
@@ -45,10 +48,17 @@ export const VendorInfo = ({ customerId }) => {
     { id: 'riders', label: 'Riders' },
   ]
 
-  const { getVendorById, activateVendor, deactivateVendor, loading } = useUserStore();
+  const { 
+    getVendorById, 
+    activateVendor, 
+    deactivateVendor,
+    getUserDeliveriesById,
+    getUserWalletById, 
+    loading 
+  } = useUserStore();
 
   // Fetch user data when component mounts
-  useEffect(() => {
+  /* useEffect(() => {
     console.log('Fetching user data for ID:', vendorId);
     console.log(typeof vendorId, vendorId);
     const fetchVendorData = async () => { 
@@ -76,7 +86,77 @@ export const VendorInfo = ({ customerId }) => {
       }
     };
     fetchVendorData();
-  }, [getVendorById, vendorId]);
+  }, [getVendorById, vendorId]); */
+
+  // Memoized fetch functions to prevent unnecessary re-renders
+  // Fetch user data when component mounts
+  const fetchVendorData = useCallback(async () => {
+    console.log('Fetching user data for ID:', vendorId);
+    console.log(typeof vendorId, vendorId);
+    try {
+      setIsLoading(true)
+      const vendorData = await getVendorById(vendorId);
+      
+      if (vendorData) {
+      setFormData({
+        firstName: vendorData.firstname || 'James',
+        lastName: vendorData.lastname || 'Okpeba',
+        email: vendorData.email || 'user@tiklog.com',
+        phone: vendorData.phone_number || '8100441503',
+        countryCode: vendorData.country_code || '+234',
+        birthDate: vendorData.date_of_birth || '22-02-2022',
+        gender: vendorData.gender || 'Male',
+        address: vendorData.address || '56 Opebi road, Sabo Yaba.',
+        startDate: vendorData.start_date || '22-02-2022',
+        expiryDate: vendorData.expiry_date || '22-02-2022',
+        businessName: vendorData.business_name || 'ABC Inc',
+        businessType: vendorData.business_type || "Logistics",
+        businessRegNumber: vendorData.business_reg_number || '103222455'
+      });
+    }
+    } catch (error) {
+      console.error("Error fetching vendor data:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [getVendorById, vendorId])
+
+  //fetch Rider deliveries data
+    const fetchVendorDeliveries = useCallback(async () => {
+        try {
+          const data = await getUserDeliveriesById(vendorId)
+          console.log("Vendor Deliveries Response: ", data)
+          if (data?.data) {
+            setVendorDeliveries(data.data)
+          }
+        } catch (error) {
+          console.error("Error fetching vendor deliveries:", error)
+          setVendorDeliveries([])
+        }
+      }, [getUserDeliveriesById, vendorId])
+  
+    //fetch Rider wallet data
+     const fetchVendorWallet = useCallback(async () => {
+        try {
+          const data = await getUserWalletById(vendorId)
+          console.log("Vendor Wallet Response: ", data)
+          if (data?.data) {
+            setVendorWallet(data.data)
+          }
+        } catch (error) {
+          console.error("Error fetching vendor wallet info:", error)
+          setVendorWallet([])
+        }
+      }, [getUserWalletById, vendorId])
+  
+    // Fetch all data when component mounts or userid changes
+      useEffect(() => {
+        if (vendorId) {
+          fetchVendorData()
+          fetchVendorDeliveries()
+          fetchVendorWallet()
+        }
+      }, [vendorId, fetchVendorData, fetchVendorDeliveries, fetchVendorWallet])
 
   // Handle input changes for profile and organisation forms
   const handleInputChange = (field, value) => {
@@ -121,6 +201,29 @@ export const VendorInfo = ({ customerId }) => {
       console.error('Error deactivating vendor:', error);
     }
   }
+
+  // Refresh data function for manual refresh
+      const refreshData = useCallback(() => {
+        fetchVendorData()
+        fetchVendorDeliveries()
+        fetchVendorWallet()
+      }, [fetchVendorData, fetchVendorDeliveries, fetchVendorWallet])
+    
+      //loading state check
+      if (isLoading) {
+        return (
+          <AppLayout showBackButton={false} showAppHeader={true}>
+            <div className="min-h-screen bg-gray-50 md:px-6">
+              <div className="animate-pulse space-y-6">
+                <div className="h-32 bg-gray-200 rounded-lg"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-64 bg-gray-200 rounded-lg"></div>
+              </div>
+            </div>
+          </AppLayout>
+        )
+      }
+  
 
   return (
     <AppLayout showBackButton={false}>
@@ -188,7 +291,7 @@ export const VendorInfo = ({ customerId }) => {
 
       {/* wallet */}
       {activeTab === 'wallet' && (
-        <RiderWalletInfo />
+        <RiderWalletInfo wallet={vendorWallet} />
       )}
 
 
@@ -211,6 +314,22 @@ export const VendorInfo = ({ customerId }) => {
       {activeTab === 'riders' && (
         <Riders />
       )}
+
+      {/* Refresh Button (Optional) */}
+        <button
+          onClick={refreshData}
+          className="fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
+          title="Refresh Data"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        </button>
     </div>
     </AppLayout>
   );

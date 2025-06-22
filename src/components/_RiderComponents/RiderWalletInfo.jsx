@@ -1,9 +1,9 @@
-import React from 'react';
-import { Eye, Search, XCircle, ArrowUpRight, ArrowDownRight, Plus, Wallet, } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Eye, Search, XCircle, ArrowUpRight, ArrowDownRight, Plus, Wallet, Truck, Gift, } from 'lucide-react';
 import { Table } from '../Table';
 
-const WalletHeader = () => (
-  <div className="bg-[#1F1F76] text-white p-6 rounded-lg">
+/* const WalletHeader = () => (
+  <div className="bg-[#1F1F76] text-white p-6 rounded-lg mx-2">
     <div className="mb-6">
       <p className="text-gray-300 mb-2">Wallet balance</p>
       <h1 className="text-4xl font-bold">₦20,000,000.00</h1>
@@ -19,7 +19,67 @@ const WalletHeader = () => (
       </button>
     </div>
   </div>
-);
+); */
+
+const WalletHeader = ({ walletData, onAddFund, onFreezeWallet }) => {
+  // Calculate wallet balance from transactions
+  const walletBalance = useMemo(() => {
+    if (!walletData?.transactions) return 0
+
+    return walletData.transactions.reduce((balance, transaction) => {
+      const amount = transaction.amount || 0
+      if (transaction.status === "Credited" || transaction.status === "Successful") {
+        // For successful deposits and credits, add to balance
+        if (!transaction.transaction_type || transaction.transaction_type === "deposit") {
+          return balance + amount
+        }
+        if (transaction.transaction_type === "transfer" && transaction.status === "Credited") {
+          return balance + amount
+        }
+      }
+      if (transaction.status === "Debited") {
+        // For debited amounts, subtract from balance
+        return balance - amount
+      }
+      return balance
+    }, 0)
+  }, [walletData])
+
+  return (
+    <div className="bg-[#1F1F76] text-white p-6 rounded-lg">
+      <div className="mb-6">
+        <p className="text-gray-300 mb-2">Wallet balance</p>
+        <h1 className="text-4xl font-bold">₦{walletBalance.toLocaleString()}.00</h1>
+        {walletData?.is_frozen && (
+          <div className="mt-2 inline-flex items-center gap-1 bg-red-500/20 text-red-200 px-2 py-1 rounded-full text-sm">
+            <XCircle size={14} />
+            <span>Wallet Frozen</span>
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <button
+          onClick={onAddFund}
+          className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border text-white border-white/20 bg-white/10 hover:bg-white/5 transition-colors"
+        >
+          <Wallet size={20} />
+          <span>Add Fund</span>
+        </button>
+        <button
+          onClick={onFreezeWallet}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg border transition-colors ${
+            walletData?.is_frozen
+              ? "border-green-500 text-green-500 bg-green-500/10 hover:bg-green-500/5"
+              : "border-red-500 text-red-500 bg-red-500/10 hover:bg-red-500/5"
+          }`}
+        >
+          <XCircle size={20} />
+          <span>{walletData?.is_frozen ? "Unfreeze Wallet" : "Freeze Wallet"}</span>
+        </button>
+      </div>
+    </div>
+  )
+}
 
 const PaymentMethods = () => (
   <div className="bg-white p-6 rounded-lg">
@@ -51,7 +111,7 @@ const PaymentMethods = () => (
   </div>
 );
 
-const TransactionIcon = ({ type }) => {
+/* const TransactionIcon = ({ type }) => {
   switch (type) {
     case 'Wallet deposit':
       return (
@@ -78,16 +138,115 @@ const TransactionIcon = ({ type }) => {
         </div>
       );
   }
-};
+}; */
+const TransactionIcon = ({ type, status }) => {
+  const getIconAndColor = () => {
+    switch (type) {
+      case "delivery":
+        return {
+          icon: Truck,
+          bgColor: "bg-blue-100",
+          iconColor: "text-blue-600",
+        }
+      case "transfer":
+        return status === "Credited"
+          ? {
+              icon: ArrowDownRight,
+              bgColor: "bg-green-100",
+              iconColor: "text-green-600",
+            }
+          : {
+              icon: ArrowUpRight,
+              bgColor: "bg-red-100",
+              iconColor: "text-red-600",
+            }
+      case "tip":
+        return {
+          icon: Gift,
+          bgColor: "bg-purple-100",
+          iconColor: "text-purple-600",
+        }
+      default:
+        // Deposit or other
+        return {
+          icon: Wallet,
+          bgColor: "bg-gray-100",
+          iconColor: "text-gray-600",
+        }
+    }
+  }
 
-export const RiderWalletInfo = () => {
+  const { icon: Icon, bgColor, iconColor } = getIconAndColor()
+
+  return (
+    <div className={`w-10 h-10 ${bgColor} rounded-full flex items-center justify-center`}>
+      <Icon className={`w-5 h-5 ${iconColor}`} />
+    </div>
+  )
+}
+
+
+
+
+export const RiderWalletInfo = ({wallet}) => {
   const columns = [
     { key: 'type', label: 'Type' },
     { key: 'amount', label: 'Amount' },
     { key: 'date', label: 'Date' }
   ];
 
-  const transactions = [
+  // Helper function to get transaction type label
+  const getTransactionTypeLabel = (type, status) => {
+    switch (type) {
+      case "delivery":
+        return "Delivery Payment"
+      case "transfer":
+        return status === "Credited" ? "Transfer Received" : "Transfer Sent"
+      case "tip":
+        return "Tip Payment"
+      default:
+        return status === "Successful" ? "Wallet Deposit" : "Transaction"
+    }
+  }
+
+  // Transform API data to table format
+    const transactionsData = useMemo(() => {
+      /* if (!wallet || !wallet.data || !Array.isArray(wallet.data) || !wallet[0]?.transactions) {
+        return []
+      } */
+  
+      const transactions = wallet
+  
+      return transactions?.map((transaction, index) => {
+        const transactionType = transaction.transaction_type || "deposit"
+        const isCredit =
+          transaction.status === "Credited" || (transaction.status === "Successful" && !transaction.transaction_type)
+  
+        return {
+          id: transaction._id || index,
+          type: getTransactionTypeLabel(transactionType, transaction.status),
+          reference: transaction.reference || `#${transaction._id}`,
+          amount: transaction.amount?.toString() || "0",
+          date: new Date(transaction.transaction_date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "2-digit"
+          }),
+          /* fullDate: new Date(transaction.transaction_date).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+          }), */
+          status: transaction.status,
+          transactionType: transaction.transaction_type,
+          isCredit,
+          originalTransaction: transaction,
+        }
+      })
+    }, [wallet])
+
+
+ /*  const transactions = [
     {
       id: 1,
       type: 'Wallet deposit',
@@ -123,9 +282,9 @@ export const RiderWalletInfo = () => {
       amount: '1,000.00',
       date: 'Sep 18'
     }
-  ];
+  ]; */
 
-  const renderCustomCell = (key, value, row) => {
+  /* const renderCustomCell = (key, value, row) => {
     if (key === 'type') {
       return (
         <div className="flex items-center gap-3">
@@ -141,17 +300,106 @@ export const RiderWalletInfo = () => {
       return <span className="text-green-600">N{value}</span>;
     }
     return value;
-  };
+  }; */
+
+   const renderCustomCell = (key, value, row) => {
+    if (key === "type") {
+      return (
+        <div className="flex items-center gap-3">
+          <TransactionIcon type={row.transactionType} status={row.status} />
+          <div>
+            <div className="font-medium">{value}</div>
+            <div className="text-sm text-gray-500">{row.reference}</div>
+          </div>
+        </div>
+      )
+    }
+    if (key === "amount") {
+      const isCredit = row.isCredit
+      return (
+        <div className="text-right">
+          <span className={`font-medium ${isCredit ? "text-green-600" : "text-red-600"}`}>
+            {isCredit ? "+" : "-"}₦{Number(value).toLocaleString()}
+          </span>
+          <div className="text-xs text-gray-500 capitalize">{row.status}</div>
+        </div>
+      )
+    }
+    if (key === "date") {
+      return (
+        <div>
+          <div className="font-medium">{value}</div>
+          <div className="text-sm text-gray-500" title={row.fullDate}>
+            {new Date(row.originalTransaction.date).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
+        </div>
+      )
+    }
+    return value
+  }
+
+   const handleViewTransaction = (row) => {
+      console.log("View transaction details:", row.originalTransaction)
+      // You can implement modal or navigation to detailed view here
+    }
+  
+    const handleAddFund = () => {
+      console.log("Add fund clicked")
+      // Implement add fund functionality
+    }
+  
+    const handleFreezeWallet = () => {
+      console.log("Freeze/Unfreeze wallet clicked")
+      // Implement freeze/unfreeze functionality
+    }
+  
+    // Loading state
+    if (!wallet) {
+      return (
+        <div className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="animate-pulse bg-gray-200 h-48 rounded-lg"></div>
+            <div className="animate-pulse bg-gray-200 h-48 rounded-lg"></div>
+          </div>
+          <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
+        </div>
+      )
+    }
+  
+    // Empty state
+    if (transactionsData?.length === 0) {
+      return (
+        <div className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <WalletHeader walletData={wallet.data?.[0]} onAddFund={handleAddFund} onFreezeWallet={handleFreezeWallet} />
+            <PaymentMethods />
+          </div>
+          <div className="bg-white p-6 rounded-lg">
+            <h2 className="text-lg font-semibold mb-6">Transactions</h2>
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <Wallet size={48} className="mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No transactions found</h3>
+              <p className="text-gray-500">This wallet doesn't have any transactions yet.</p>
+            </div>
+          </div>
+        </div>
+      )
+    }
 
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
-        <WalletHeader />
+        <WalletHeader walletData={wallet.data?.[0]} onAddFund={handleAddFund} onFreezeWallet={handleFreezeWallet} />
         <PaymentMethods />
       </div>
 
       <div className="bg-white p-6 rounded-lg">
-        <h2 className="text-lg font-semibold mb-6">Transactions</h2>
+        <h2 className="text-lg font-semibold mb-6">Transactions ({transactionsData?.length})</h2>
         
         <div className="relative mb-6">
           <input
@@ -165,13 +413,16 @@ export const RiderWalletInfo = () => {
         <Table
           name={"Transactions"}
           columns={columns}
-          data={transactions}
+          data={transactionsData}
           renderCustomCell={renderCustomCell}
           showSearch={false}
           itemsPerPage={10}
           onRowClick={(row) => console.log('View transaction:', row)}
-          renderActions={(row) => (
-            <button className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+          renderActions={(row) => (    
+            <button
+              onClick={() => handleViewTransaction(row)}
+              className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+            >
               <Eye size={16} />
               <span>View</span>
             </button>

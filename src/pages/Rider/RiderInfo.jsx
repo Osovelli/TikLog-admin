@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ProfileForm } from '@/components/ProfileForm';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { RiderRequests } from '@/components/_RiderComponents/RiderRequests';
@@ -30,6 +30,9 @@ export const RiderInfo = () => {
     expiryDate: '',
     isActive: null,
   });
+  const [riderDeliveries, setRiderDeliveries] = useState([]);
+  const [riderWallet, setRiderWallet] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const tabs = [
     { id: 'profile', label: 'Profile Information' },
@@ -39,15 +42,23 @@ export const RiderInfo = () => {
     { id: 'vehicles', label: 'All Vehicles' },
   ]
 
-  const { getRiderById, activateRider, deactivateRider, loading } = useUserStore();
+  const { 
+    getRiderById, 
+    activateRider, 
+    deactivateRider,
+    getUserDeliveriesById,
+    getUserWalletById, 
+    loading
+  } = useUserStore();
+
+  // Memoized fetch functions to prevent unnecessary re-renders
 
   // Fetch user data when component mounts
-  useEffect(() => {
-    console.log('Fetching user data for ID:', riderId);
-    console.log(typeof riderId, riderId);
-    const fetchRiderData = async () => { 
+  const fetchRiderData = useCallback(async () => {
       try {
+        setIsLoading(true)
         const riderData = await getRiderById(riderId);
+        
         if (riderData) {
           setFormData({
             firstName: riderData.firstname || 'James',
@@ -63,14 +74,51 @@ export const RiderInfo = () => {
           });
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching rider data:", error)
+      } finally {
+        setIsLoading(false)
       }
-    };
-    fetchRiderData();
-  }, [getRiderById, riderId]);
+    }, [getRiderById, riderId])
+
+  //fetch Rider deliveries data
+  const fetchRiderDeliveries = useCallback(async () => {
+      try {
+        const data = await getUserDeliveriesById(riderId)
+        console.log("Rider Deliveries Response: ", data)
+        if (data?.data) {
+          setRiderDeliveries(data.data)
+        }
+      } catch (error) {
+        console.error("Error fetching rider deliveries:", error)
+        setRiderDeliveries([])
+      }
+    }, [getUserDeliveriesById, riderId])
+
+  //fetch Rider wallet data
+   const fetchRiderWallet = useCallback(async () => {
+      try {
+        const data = await getUserWalletById(riderId)
+        console.log("Rider Wallet Response: ", data)
+        if (data?.data) {
+          setRiderWallet(data.data)
+        }
+      } catch (error) {
+        console.error("Error fetching user wallet info:", error)
+        setRiderWallet([])
+      }
+    }, [getUserWalletById, riderId])
+
+  // Fetch all data when component mounts or userid changes
+    useEffect(() => {
+      if (riderId) {
+        fetchRiderData()
+        fetchRiderDeliveries()
+        fetchRiderWallet()
+      }
+    }, [riderId, fetchRiderData, fetchRiderDeliveries, fetchRiderWallet])
 
 
-
+  //handle changes in inputs  
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -78,10 +126,13 @@ export const RiderInfo = () => {
     }));
   };
 
+
+  //this is suppose to handle/send the changes made in the rider form to the database
   const handleSaveChanges = () => {
     console.log('Saving changes:', formData);
   };
 
+  //activates rider status
   const handleActivateUser = async () => {
     try {
       console.log('activating user...');
@@ -91,6 +142,8 @@ export const RiderInfo = () => {
     }
   }
 
+
+  //deactivates rider status
   const handleDeactivateUser = async () => {
     try {
       console.log('deactivating user...');
@@ -104,6 +157,28 @@ export const RiderInfo = () => {
       console.error('Error deactivating user:', error);
     }
   }
+
+  // Refresh data function for manual refresh
+    const refreshData = useCallback(() => {
+      fetchRiderData()
+      fetchRiderDeliveries()
+      fetchRiderWallet()
+    }, [fetchRiderData, fetchRiderDeliveries, fetchRiderWallet])
+  
+    //loading state check
+    if (isLoading) {
+      return (
+        <AppLayout showBackButton={false} showAppHeader={true}>
+          <div className="min-h-screen bg-gray-50 md:px-6">
+            <div className="animate-pulse space-y-6">
+              <div className="h-32 bg-gray-200 rounded-lg"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-64 bg-gray-200 rounded-lg"></div>
+            </div>
+          </div>
+        </AppLayout>
+      )
+    }
 
   return (
     <AppLayout showBackButton={false}>
@@ -185,7 +260,9 @@ export const RiderInfo = () => {
 
       {/* wallet */}
       {activeTab === 'wallet' && (
-        <RiderWalletInfo />
+        <RiderWalletInfo 
+        wallet={riderWallet} 
+        />
       )}
 
 
@@ -203,6 +280,22 @@ export const RiderInfo = () => {
       {activeTab === 'vehicles' && (
         <VehiclesInfo />
       )}
+
+      {/* Refresh Button (Optional) */}
+        <button
+          onClick={refreshData}
+          className="fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
+          title="Refresh Data"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        </button>
     </div>
     </AppLayout>
   );

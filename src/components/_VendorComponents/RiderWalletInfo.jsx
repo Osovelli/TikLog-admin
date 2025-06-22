@@ -80,7 +80,7 @@ const TransactionIcon = ({ type }) => {
   }
 };
 
-export const RiderWalletInfo = () => {
+export const RiderWalletInfo = ({wallet}) => {
   const columns = [
     { key: 'type', label: 'Type' },
     { key: 'amount', label: 'Amount' },
