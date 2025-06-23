@@ -44,22 +44,22 @@ export const TransactionDetails = ({ isOpen, onClose, transaction }) => {
           
           <DetailField 
             label="Transaction ID" 
-            value={transaction.vendorName} 
+            value={transaction._id} 
           />
           
           <DetailField 
-            label="Name" 
-            value="James Okbepa" 
+            label="Transaction Type" 
+            value={transaction.type}
           />
           
-          <DetailField 
+          {/* <DetailField 
             label="Email" 
             value={transaction.email} 
-          />
+          /> */}
           
           <DetailField 
             label="Payment Method" 
-            value={transaction.paymentType} 
+            value={transaction.transaction_type} 
           />
           
           <DetailField 
@@ -70,7 +70,7 @@ export const TransactionDetails = ({ isOpen, onClose, transaction }) => {
           
           <DetailField 
             label="Date and Time" 
-            value={transaction.dateTime} 
+            value={transaction.transaction_date.slice(0, 10) + ' ' + transaction.transaction_date.slice(11, 19)} 
           />
         </div>
 

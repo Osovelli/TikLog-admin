@@ -215,7 +215,7 @@ export const TransactionTable = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState(null)
 
-  const { wallets, loading, fetchWallets } = useWalletStore()
+  const { wallets, loading, fetchWallets, fetchWalletById, walletDetails } = useWalletStore()
 
   useEffect(() => {
     fetchWallets()
@@ -407,10 +407,16 @@ export const TransactionTable = () => {
     return value
   }
 
-  const handleViewClick = (row) => {
-    setSelectedTransaction(row)
-    setIsDetailsOpen(true)
+
+  const handleViewClick = async(row) => {
     console.log("View transaction:", row)
+    try {
+      await fetchWalletById(row.id)
+    } catch (error) {
+      console.error("Error fetching wallet details:", error)
+    }
+    setSelectedTransaction(walletDetails)
+    setIsDetailsOpen(true)
   }
 
   const ActionButtons = ({ row }) => (
@@ -477,8 +483,8 @@ export const TransactionTable = () => {
 
   return (
     <div className="space-y-6 bg-white p-6 rounded-lg">
-      <div className="flex justify-between">
-        <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+      <div className="flex flex-col gap-8 md:flex-row items-center justify-between">
+        <div className="flex gap-2 p-1 bg-gray-100 rounded-lg order-2 md:order-none">
           {tabs.map((tab) => (
             <TabButton
               key={tab.id}
@@ -489,7 +495,7 @@ export const TransactionTable = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
           {timeFrames.map((timeFrame) => (
             <TimeFrameButton
               key={timeFrame.id}

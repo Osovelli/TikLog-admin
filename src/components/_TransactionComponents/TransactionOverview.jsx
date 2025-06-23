@@ -229,7 +229,7 @@ export const TransactionOverview = () => {
             <h2 className="text-lg font-semibold">Transaction overview</h2>
             <Link2 className="w-4 h-4 text-gray-400" />
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap justify-end items-center gap-6">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500" />

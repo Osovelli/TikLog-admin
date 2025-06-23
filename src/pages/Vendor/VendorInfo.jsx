@@ -7,7 +7,7 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import { OrganisationInfo } from '@/components/_VendorComponents/OrganisationInfo';
 import { Riders } from '@/components/_VendorComponents/RiderRequests';
-import { RiderWalletInfo } from '@/components/_VendorComponents/RiderWalletInfo';
+import { VendorWalletInfo } from '@/components/_VendorComponents/VendorWalletInfo';
 import { LicenseForm } from '@/components/_VendorComponents/LicenseInfo';
 import { VehiclesInfo } from '@/components/_VendorComponents/VehicleInfo';
 import { Requests } from '@/components/_VendorComponents/AllRequests';
@@ -52,7 +52,7 @@ export const VendorInfo = ({ customerId }) => {
     getVendorById, 
     activateVendor, 
     deactivateVendor,
-    getUserDeliveriesById,
+    getVendorDeliveriesById,
     getUserWalletById, 
     loading 
   } = useUserStore();
@@ -124,7 +124,7 @@ export const VendorInfo = ({ customerId }) => {
   //fetch Rider deliveries data
     const fetchVendorDeliveries = useCallback(async () => {
         try {
-          const data = await getUserDeliveriesById(vendorId)
+          const data = await getVendorDeliveriesById(vendorId)
           console.log("Vendor Deliveries Response: ", data)
           if (data?.data) {
             setVendorDeliveries(data.data)
@@ -133,7 +133,7 @@ export const VendorInfo = ({ customerId }) => {
           console.error("Error fetching vendor deliveries:", error)
           setVendorDeliveries([])
         }
-      }, [getUserDeliveriesById, vendorId])
+      }, [getVendorDeliveriesById, vendorId])
   
     //fetch Rider wallet data
      const fetchVendorWallet = useCallback(async () => {
@@ -286,12 +286,14 @@ export const VendorInfo = ({ customerId }) => {
 
       {/*Requests*/}
       {activeTab === 'requests' && (
-        <Requests />
+        <Requests 
+          deliveries={vendorDeliveries}  
+        />
       )}
 
       {/* wallet */}
       {activeTab === 'wallet' && (
-        <RiderWalletInfo wallet={vendorWallet} />
+        <VendorWalletInfo wallet={vendorWallet} />
       )}
 
 
@@ -307,7 +309,8 @@ export const VendorInfo = ({ customerId }) => {
 
       {/* wallet */}
       {activeTab === 'vehicles' && (
-        <VehiclesInfo />
+        <VehiclesInfo 
+        />
       )}
 
       {/* Deliveries */}

@@ -30,10 +30,10 @@ fetchWalletStats: async () => {
     set({ loading: true, error: null });
     try {
         const res = await axiosInstance.get("/admin/wallet_management/stats");
-        console.log('WALLET STAT RESULT: ', res.data.message)
-        set({ walletStats: res.data.message, loading: false });
+        console.log('WALLET STAT RESULT: ', res)
+        set({ walletStats: res.data.data, loading: false });
         toast.success("Wallet stats fetched successfully!")
-        return res.data.message
+        return res.data.data
     } catch (error) {
         set({ error: error?.response?.data?.message || "Failed to fetch wallet stats", loading: false, showErrorModal: true });
         toast.error("Failed to fetch wallet stats");
@@ -44,9 +44,10 @@ fetchWalletById: async (walletId) => {
     set({ loading: true, error: null });
     try {
         const res = await axiosInstance.get(`/admin/wallet_management/${walletId}`);
-        set({ walletDetails: res.data, loading: false });
+        console.log('SINGLE WALLET RESULT: ', res.data.data)
+        set({ walletDetails: res.data.data, loading: false });
         toast.success("Fetched Single Wallet successfully")
-
+        return res.data.data
     } catch (error) {
         set({ error: error?.response?.data?.message || "Failed to fetch wallet details", loading: false, showErrorModal: true });
         toast.error("Failed to fetch wallet details");
@@ -58,8 +59,8 @@ fetchTransactionOverview: async (payload) => {
     try {
         const res = await axiosInstance.post("/admin/wallet_management/transaction_overview", payload);
         console.log('TRANSACTION OVERVIEW RESULT: ', res.data.message)
-        set({ transactionOverview: res.data.message, loading: false });
-        return res.data.message
+        set({ transactionOverview: res.data.data, loading: false });
+        return res.data.data
     } catch (error) {
         set({ error: error?.response?.data?.message || "Failed to fetch transaction overview", loading: false, showErrorModal: true });
         toast.error("Failed to fetch transaction overview");

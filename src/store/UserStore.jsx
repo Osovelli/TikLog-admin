@@ -10,6 +10,9 @@ const useUserStore = create((set) => ({
   singleVendor: null,
   allRiders: null,
   allVendors: null,
+  userDeliveries: null,
+  riderDeliveries: null,
+  vendorDeliveries: null,
   loading: false,
   error: null,
   showErrorModal: false,
@@ -251,6 +254,38 @@ const useUserStore = create((set) => ({
       console.error("Get User Deliveries failed", error)
       toast.error(error.response?.data?.message || "An error occurred while fetching user deliveries");
       set({ loading: false, error: 'Get User Deliveries failed. Please try again.', showErrorModal: true})
+      throw error; // Re-throw to handle in component if needed
+  }
+},
+
+  getRiderDeliveriesById: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.get(`/admin/user_management/all_riders/${id}/deliveries`);
+      console.log("GET RIDER DELIVERIES RESPONSE", response.data);
+      set({ loading: false, riderDeliveries: response.data });
+      toast.success("Rider deliveries fetched successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Get Rider Deliveries failed", error)
+      toast.error(error.response?.data?.message || "An error occurred while fetching rider deliveries");
+      set({ loading: false, error: 'Get Rider Deliveries failed. Please try again.', showErrorModal: true})
+      throw error; // Re-throw to handle in component if needed
+  }
+},
+
+  getVendorDeliveriesById: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.get(`/admin/user_management/all_vendors/${id}/deliveries`);
+      console.log("GET VENDOR DELIVERIES RESPONSE", response.data);
+      set({ loading: false, vendorDeliveries: response.data });
+      toast.success("Vendor deliveries fetched successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Get Vendor Deliveries failed", error)
+      toast.error(error.response?.data?.message || "An error occurred while fetching vendor deliveries");
+      set({ loading: false, error: 'Get Vendor Deliveries failed. Please try again.', showErrorModal: true})
       throw error; // Re-throw to handle in component if needed
   }
 },

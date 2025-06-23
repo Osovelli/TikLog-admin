@@ -27,7 +27,7 @@ export const TransactionPage = () => {
     }
 
     initializeData()
-  }, [fetchWalletStats, fetchTransactionOverview])
+  }, [fetchWalletStats, fetchTransactionOverview, ])
 
   return (
     <AppLayout title={"Transaction Management"}>

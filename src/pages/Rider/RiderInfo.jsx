@@ -46,7 +46,7 @@ export const RiderInfo = () => {
     getRiderById, 
     activateRider, 
     deactivateRider,
-    getUserDeliveriesById,
+    getRiderDeliveriesById,
     getUserWalletById, 
     loading
   } = useUserStore();
@@ -83,7 +83,7 @@ export const RiderInfo = () => {
   //fetch Rider deliveries data
   const fetchRiderDeliveries = useCallback(async () => {
       try {
-        const data = await getUserDeliveriesById(riderId)
+        const data = await getRiderDeliveriesById(riderId)
         console.log("Rider Deliveries Response: ", data)
         if (data?.data) {
           setRiderDeliveries(data.data)
@@ -92,7 +92,7 @@ export const RiderInfo = () => {
         console.error("Error fetching rider deliveries:", error)
         setRiderDeliveries([])
       }
-    }, [getUserDeliveriesById, riderId])
+    }, [getRiderDeliveriesById, riderId])
 
   //fetch Rider wallet data
    const fetchRiderWallet = useCallback(async () => {
@@ -180,6 +180,8 @@ export const RiderInfo = () => {
       )
     }
 
+    console.log("Rider Deliveries: ", riderDeliveries)
+
   return (
     <AppLayout showBackButton={false}>
     <div className="min-h-screen bg-gray-50 md:px-6">
@@ -254,7 +256,9 @@ export const RiderInfo = () => {
 
       {/* Deliveries */}
       {activeTab === 'requests' && (
-        <RiderRequests />
+        <RiderRequests
+         deliveries={riderDeliveries} 
+        />
       )}
 
 

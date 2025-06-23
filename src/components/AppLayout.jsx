@@ -5,11 +5,14 @@ import { Logo } from '@/icon/Icons'
 import { CustomButton } from './CustomButton';
 import { ArrowLeftCircle } from 'lucide-react';
 import useUserStore from '@/store/UserStore';
+import { Navigate, useNavigate } from 'react-router';
 
 export const AppLayout = ({children, icon, title, showBackButton=true, showAppHeader=true}) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     const { userCount, loading, getUserCount } = useUserStore(); 
+
+    const navigate = useNavigate();
 
     useEffect(() => {
       getUserCount();
@@ -52,6 +55,14 @@ export const AppLayout = ({children, icon, title, showBackButton=true, showAppHe
 
           {/* Scrollable content area */}
           <div className="flex-1 overflow-auto pt-16">
+            <div className='fixed top-12 left-0 z-10 w-full bg-white px-4 py-2 flex items-center justify-between md:hidden'>
+            <button 
+              className={`z-50 md:hidden  py-4 bg-white rounded-full shadow-md transition-transform'}`}
+              onClick={()=> {navigate(-1)}}
+            >
+              <ArrowLeftCircle size={24} />
+            </button>
+            </div>
             {children}
           </div>
         </div>
