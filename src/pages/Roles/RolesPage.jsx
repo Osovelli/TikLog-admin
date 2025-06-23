@@ -398,7 +398,7 @@ const SingleRole = selectedRole?.data;
           <Button 
             variant="outline" 
             className="flex-1 lg:flex-none whitespace-nowrap"
-            onClick={()=>navigate('/admin-roles')}
+            onClick={()=>navigate('/admin-users')}
           >
             <UserCircleIcon className="w-4 h-4 mr-2" />
             Admin Users

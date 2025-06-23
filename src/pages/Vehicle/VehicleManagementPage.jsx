@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Eye, Trash2, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import { Table } from '@/components/Table';
@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/AppLayout';
 import { AddVehicleModal } from '@/components/_VehicleComponents/AddVehicleModal';
 import { VehicleModal } from '@/components/_VehicleComponents/VehicleModal';
 import { VehicleTypeModal } from '@/components/_VehicleComponents/VehicleTypeModal';
+import useVehicleStore from '@/store/VehicleStore';
 
 const TabButton = ({ label, active, onClick }) => (
   <button
@@ -20,26 +21,46 @@ const TabButton = ({ label, active, onClick }) => (
   </button>
 );
 
+const transformVehicleData = (vehicles) => {
+  return vehicles.map((vehicle) => ({
+    ...vehicle,
+    id: vehicle._id, // Add id field for table operations
+    vehicleType: vehicle.vehicle_type, // Add flat access if needed
+    vehicleMake: vehicle.vehicleDetails?.make,
+    vehicleModel: vehicle.vehicleDetails?.model,
+    plateNumber: vehicle.vehicleDetails?.plate_number,
+  }))
+}
+
 export const VehicleManagementPage = () => {
   const [activeTab, setActiveTab] = useState('vehicles');
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
 
+  const { vehicles, loading, error, fetchVehicles, createVehicle } = useVehicleStore()
+
+  
+  useEffect(() => {
+    fetchVehicles()
+  }, [fetchVehicles])
+
   const vehicleColumns = [
-    { key: 'vehicleType', label: 'Vehicle Type' },
-    { key: 'vehicleMake', label: 'Vehicle Make' },
-    { key: 'plateNumber', label: 'Plate Number' },
-    { key: 'status', label: 'Status' }
-  ];
+    { key: "vehicle_type", label: "Vehicle Type" },
+    { key: "vehicleDetails.make", label: "Vehicle Make" },
+    { key: "vehicleDetails.model", label: "Vehicle Model" },
+    { key: "vehicleDetails.plate_number", label: "Plate Number" },
+    { key: "status", label: "Status" },
+  ]
 
   const typeColumns = [
     { key: 'vehicleType', label: 'Vehicle Type' },
     { key: 'speed', label: 'Speed' },
     { key: 'costPerKm', label: 'Cost/KM' }
   ];
+  
 
-  const vehiclesData = [
+  /* const vehiclesData = [
     {
       id: 1,
       vehicleType: 'Car',
@@ -62,7 +83,7 @@ export const VehicleManagementPage = () => {
       plateNumber: 'XL235ABC',
       status: ['Active', 'Inactive'][index % 2]
     }))
-  ];
+  ]; */
 
   const typesData = [
     { id: 1, vehicleType: 'Car', speed: '20', costPerKm: 'XL235ABC' },
@@ -71,21 +92,33 @@ export const VehicleManagementPage = () => {
     { id: 4, vehicleType: 'Truck', speed: '12', costPerKm: 'XL235ABC' },
     { id: 5, vehicleType: 'Van', speed: '8', costPerKm: 'XL235ABC' }
   ];
+  
 
   const renderCustomCell = (key, value, row) => {
-    if (key === 'status') {
+    if (key === "status") {
       return (
-        <span className={`px-3 py-1 rounded-full text-sm ${
-          value === 'Active' 
-            ? 'bg-green-50 text-green-700' 
-            : 'bg-orange-50 text-orange-500'
-        }`}>
+        <span
+          className={`px-3 py-1 rounded-full text-sm ${
+            value === "Active" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-500"
+          }`}
+        >
           {value}
         </span>
-      );
+      )
     }
-    return value;
-  };
+
+    // Handle nested data access
+    if (key.includes(".")) {
+      const keys = key.split(".")
+      let nestedValue = row
+      for (const nestedKey of keys) {
+        nestedValue = nestedValue?.[nestedKey]
+      }
+      return nestedValue || "-"
+    }
+
+    return value
+  }
 
   const handleView = (row) => {
     console.log('View:', row);
@@ -129,7 +162,7 @@ export const VehicleManagementPage = () => {
     <AppLayout title={"Vehicle Management"}>
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+        <div className="flex gap-2 p-1 bg-gray-100 rounded-lg mt-8 md:mt-0">
           <TabButton
             label="Vehicle List"
             active={activeTab === 'vehicles'}
@@ -152,15 +185,25 @@ export const VehicleManagementPage = () => {
       </div>
 
       <div className="bg-white rounded-lg border">
-        <Table
-          name={"Vehicle"}
-          columns={activeTab === 'vehicles' ? vehicleColumns : typeColumns}
-          data={activeTab === 'vehicles' ? vehiclesData : typesData}
-          renderCustomCell={renderCustomCell}
-          showSearch={false}
-          itemsPerPage={10}
-          renderActions={(row) => <ActionButtons row={row} />}
-        />
+        {loading ? (
+            <div className="flex justify-center items-center p-8">
+              <div className="text-gray-500">Loading vehicles...</div>
+            </div>
+          ) : error ? (
+            <div className="flex justify-center items-center p-8">
+              <div className="text-red-500">Error: {error}</div>
+            </div>
+          ) : (
+            <Table
+              name={"Vehicle"}
+              columns={activeTab === "vehicles" ? vehicleColumns : typeColumns}
+              data={activeTab === "vehicles" ? transformVehicleData(vehicles) : typesData}
+              renderCustomCell={renderCustomCell}
+              showSearch={false}
+              itemsPerPage={10}
+              renderActions={(row) => <ActionButtons row={row} />}
+            />
+          )}
       </div>
       {/* <AddVehicleModal 
       isOpen={isVehicleModalOpen}
