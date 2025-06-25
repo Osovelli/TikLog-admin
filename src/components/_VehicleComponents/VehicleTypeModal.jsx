@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Modal from '../ModalComponent'
+import useVehicleStore from '@/store/VehicleStore'
 
 export const VehicleTypeModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ export const VehicleTypeModal = ({ isOpen, onClose }) => {
     speed: '',
     cost: ''
   })
+
 
   const handleSave = () => {
     // Handle save logic

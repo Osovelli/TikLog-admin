@@ -29,12 +29,12 @@ const useFAQStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axiosInstance.get('/faq');
-      console.log("GET FAQs RESPONSE", response.data);
+      //console.log("GET FAQs RESPONSE", response.data);
       set({ loading: false, faqs: response.data });
       return response.data;
     } catch (error) {
       console.error("Get FAQs failed", error);
-      toast.error(error.response?.data?.message || "An error occurred while fetching FAQs");
+      //toast.error(error.response?.data?.message || "An error occurred while fetching FAQs");
       set({ loading: false, error: 'Get FAQs failed. Please try again.', showErrorModal: true });
       throw error; // Re-throw to handle in component if needed
     }

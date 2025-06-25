@@ -16,9 +16,9 @@ fetchWallets: async () => {
     set({ loading: true, error: null });
     try {
         const res = await axiosInstance.get("/admin/wallet_management/all_wallets");
-        console.log('WALLETS RESULT: ', res)
+        //console.log('WALLETS RESULT: ', res)
         set({ wallets: res.data.data, loading: false });
-        toast.success("Wallets Fetched Successfully")
+        //toast.success("Wallets Fetched Successfully")
         return res.data
     } catch (error) {
         set({ error: error?.response?.data?.message || "Failed to fetch wallets", loading: false, showErrorModal: true });
@@ -30,9 +30,9 @@ fetchWalletStats: async () => {
     set({ loading: true, error: null });
     try {
         const res = await axiosInstance.get("/admin/wallet_management/stats");
-        console.log('WALLET STAT RESULT: ', res)
+        //console.log('WALLET STAT RESULT: ', res)
         set({ walletStats: res.data.data, loading: false });
-        toast.success("Wallet stats fetched successfully!")
+        //toast.success("Wallet stats fetched successfully!")
         return res.data.data
     } catch (error) {
         set({ error: error?.response?.data?.message || "Failed to fetch wallet stats", loading: false, showErrorModal: true });
@@ -44,9 +44,9 @@ fetchWalletById: async (walletId) => {
     set({ loading: true, error: null });
     try {
         const res = await axiosInstance.get(`/admin/wallet_management/${walletId}`);
-        console.log('SINGLE WALLET RESULT: ', res.data.data)
+        //console.log('SINGLE WALLET RESULT: ', res.data.data)
         set({ walletDetails: res.data.data, loading: false });
-        toast.success("Fetched Single Wallet successfully")
+        //toast.success("Fetched Single Wallet successfully")
         return res.data.data
     } catch (error) {
         set({ error: error?.response?.data?.message || "Failed to fetch wallet details", loading: false, showErrorModal: true });

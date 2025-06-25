@@ -26,14 +26,14 @@ export const AppLayout = ({children, icon, title, showBackButton=true, showAppHe
     return (
       <div className="flex h-screen w-full bg-gray-50">
         {/* Logo for larger screens - positioned above sidebar */}
-        <div className="hidden md:flex md:items-end fixed top-0 left-0 w-64 bg-white z-50 p-6 underline border-b">
+        <div className="hidden md:flex md:items-end fixed top-0 left-0 w-64 bg-white z-50 p-6 underline border-b ">
           <img 
             src='/tiklogs logo_blue.png' 
             className="w-auto h-8 object-contain shrink-0" 
             alt="Tiklogs Logo"
           />
-          <p className='text-xs font-medium text-gray-700'>ADMIN</p>
-          </div>
+          <p className='text-lg font-bold text-gray-700'>ADMIN</p>
+        </div>
 
           {/* Sidebar */}
         <div className="md:pt-20 pt-6">
@@ -57,7 +57,7 @@ export const AppLayout = ({children, icon, title, showBackButton=true, showAppHe
           <div className="flex-1 overflow-auto pt-16">
             <div className='fixed top-12 left-0 z-10 w-full bg-white px-4 py-2 flex items-center justify-between md:hidden'>
             <button 
-              className={`z-50 md:hidden  py-4 bg-white rounded-full shadow-md transition-transform'}`}
+              className={`z-50 md:hidden py-4 bg-white rounded-full shadow-md transition-transform'}`}
               onClick={()=> {navigate(-1)}}
             >
               <ArrowLeftCircle size={24} />

@@ -7,14 +7,15 @@ const useVehicleStore = create((set) => ({
   error: null,
   showErrorModal: false,
   vehicles: [],
+  vehicle: null,
 
 fetchVehicles: async () => {
     set({ loading: true, error: null });
     try {
         const res = await axiosInstance.get("/admin/vehicle_management/all_vehicles");
-        console.log('VEHICLES RESULT: ', res)
+        //console.log('VEHICLES RESULT: ', res)
         set({ vehicles: res.data?.data || [], loading: false });
-        toast.success("Vehicles fetched successfully");
+        //toast.success("Vehicles fetched successfully");
         return res.data.data;
     } catch (error) {
         set({
@@ -28,6 +29,120 @@ fetchVehicles: async () => {
 },
 
 createVehicle: async (vehicleData) => {
+    set({ loading: true, error: null })
+    try {
+      const formData = new FormData()
+
+      // Append basic vehicle data
+      formData.append("vehicle_type", vehicleData.vehicle_type)
+      formData.append("plate_number", vehicleData.plate_number)
+      formData.append("color", vehicleData.color)
+      formData.append("make", vehicleData.make)
+      formData.append("model", vehicleData.model)
+      formData.append("year", vehicleData.year)
+      formData.append("rider_id", vehicleData.rider_id)
+
+      // Append dates if provided
+      if (vehicleData.issue_date) {
+        formData.append("issue_date", vehicleData.issue_date)
+      }
+      if (vehicleData.expiry_date) {
+        formData.append("expiry_date", vehicleData.expiry_date)
+      }
+
+      // Append vehicle images
+      if (vehicleData.vehicle_images && vehicleData.vehicle_images.length > 0) {
+        vehicleData.vehicle_images.forEach((image) => {
+          formData.append("vehicle_images", image)
+        })
+      }
+
+      // Append license images
+      if (vehicleData.front_image) {
+        formData.append("front_image", vehicleData.front_image)
+      }
+      if (vehicleData.back_image) {
+        formData.append("back_image", vehicleData.back_image)
+      }
+
+      const res = await axiosInstance.post("/rider/vehicle", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+
+      toast.success("Vehicle created successfully")
+      set({ loading: false })
+      return res.data.data
+    } catch (error) {
+      set({
+        error: error?.response?.data?.message || "Failed to create vehicle",
+        showErrorModal: true,
+        loading: false,
+      })
+      console.error("Error creating vehicle:", error)
+      toast.error(error?.response?.data?.message || "Failed to create vehicle")
+      throw error
+    }
+  },
+
+  getRiderByPhone: async (phone) => {
+    set({ loading: true, error: null })
+    try {
+      const res = await axiosInstance.post("/rider/phone_number", {
+        phone_number: phone,
+      })
+      console.log("GET RIDER BY PHONE RESPONSE", res.data)
+      set({ loading: false })
+      return res.data.data // Return the rider data
+    } catch (error) {
+      set({
+        error: error?.response?.data?.message || "Failed to fetch rider by phone",
+        showErrorModal: true,
+        loading: false,
+      })
+      console.error("Error fetching rider by phone:", error)
+      toast.error(error?.response?.data?.message || "Failed to fetch rider by phone")
+      return null // Return null instead of throwing
+    }
+  },
+
+  updateVehicle: async (vehicleId, vehicleData) => {
+    set({ loading: true, error: null })
+    try {
+      const res = await axiosInstance.put(`/rider/vehicle/${vehicleId}`, vehicleData)
+      toast.success("Vehicle updated successfully")
+      set({ loading: false })
+      return res.data.data
+    } catch (error) {
+      set({
+        error: error?.response?.data?.message || "Failed to update vehicle",
+        showErrorModal: true,
+        loading: false,
+      })
+      console.error("Error updating vehicle:", error)
+      toast.error(error?.response?.data?.message || "Failed to update vehicle")
+      throw error
+    }
+  },
+
+  deleteVehicle: async (vehicleId) => {
+    set({ loading: true, error: null })
+    try {
+      await axiosInstance.delete(`/rider/vehicle/${vehicleId}`)
+      toast.success("Vehicle deleted successfully")
+      set({ loading: false })
+    } catch (error) {
+      set({
+        error: error?.response?.data?.message || "Failed to delete vehicle",
+        showErrorModal: true,
+        loading: false,
+      })
+      console.error("Error deleting vehicle:", error)
+      toast.error(error?.response?.data?.message || "Failed to delete vehicle")
+      throw error
+    }
+  },
+
+/* createVehicle: async (vehicleData) => {
     set({ loading: true, error: null });
     try {
         const res = await axiosInstance.post(
@@ -49,6 +164,22 @@ createVehicle: async (vehicleData) => {
     }
 },
 
+getRiderByPhone: async (phone) => {
+    set({ loading: true, error: null });
+    try {
+        const res = await axiosInstance.get(`/rider/${phone}`);
+        console.log("GET RIDER BY PHONE RESPONSE", res.data);
+        set({ loading: false });
+        return res.data.data; // Return the rider data
+    } catch (error) {
+        set({
+            error: error?.response?.data?.message || "Failed to fetch rider by phone",
+            showErrorModal: true,
+            loading: false,
+        });
+        console.error('Error fetching rider by phone:', error),
+        toast.error(error?.response?.data?.message || "Failed to fetch rider by phone");
+    }} */
 })
 )
 

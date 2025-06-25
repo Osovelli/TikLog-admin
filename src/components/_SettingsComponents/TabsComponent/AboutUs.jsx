@@ -222,7 +222,7 @@ export const AboutUs = () => {
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-3 text-gray-700">Preview</h3>
             <div
-              className="prose prose-sm max-w-none bg-white p-6 rounded border"
+              className="prose prose-sm max-w-none bg-white p-6 rounded border rich-text-preview"
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </div>
@@ -245,6 +245,126 @@ export const AboutUs = () => {
         </span>
         {hasChanges && <span className="text-orange-600 font-medium">Unsaved changes</span>}
       </div>
+
+      {/* Custom styles for rich text preview to match editor formatting */}
+      <style jsx>{`
+        .rich-text-preview h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          line-height: 1.2;
+          margin-top: 1.5rem;
+          margin-bottom: 1rem;
+          color: #1f2937;
+        }
+
+        .rich-text-preview h2 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          line-height: 1.3;
+          margin-top: 1.25rem;
+          margin-bottom: 0.75rem;
+          color: #374151;
+        }
+
+        .rich-text-preview h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-top: 1rem;
+          margin-bottom: 0.5rem;
+          color: #4b5563;
+        }
+
+        .rich-text-preview h4 {
+          font-size: 1.125rem;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-top: 0.75rem;
+          margin-bottom: 0.5rem;
+          color: #6b7280;
+        }
+
+        .rich-text-preview h5 {
+          font-size: 1rem;
+          font-weight: 600;
+          line-height: 1.5;
+          margin-top: 0.75rem;
+          margin-bottom: 0.25rem;
+          color: #6b7280;
+        }
+
+        .rich-text-preview h6 {
+          font-size: 0.875rem;
+          font-weight: 600;
+          line-height: 1.5;
+          margin-top: 0.5rem;
+          margin-bottom: 0.25rem;
+          color: #9ca3af;
+        }
+
+        .rich-text-preview p {
+          margin-bottom: 1rem;
+          line-height: 1.6;
+          color: #374151;
+        }
+
+        .rich-text-preview ul,
+        .rich-text-preview ol {
+          margin-bottom: 1rem;
+          padding-left: 1.5rem;
+        }
+
+        .rich-text-preview li {
+          margin-bottom: 0.25rem;
+          line-height: 1.6;
+        }
+
+        .rich-text-preview blockquote {
+          border-left: 4px solid #e5e7eb;
+          padding-left: 1rem;
+          margin: 1rem 0;
+          font-style: italic;
+          color: #6b7280;
+        }
+
+        .rich-text-preview strong {
+          font-weight: 600;
+        }
+
+        .rich-text-preview em {
+          font-style: italic;
+        }
+
+        .rich-text-preview a {
+          color: #3b82f6;
+          text-decoration: underline;
+        }
+
+        .rich-text-preview a:hover {
+          color: #1d4ed8;
+        }
+
+        .rich-text-preview code {
+          background-color: #f3f4f6;
+          padding: 0.125rem 0.25rem;
+          border-radius: 0.25rem;
+          font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+          font-size: 0.875em;
+        }
+
+        .rich-text-preview pre {
+          background-color: #f3f4f6;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          overflow-x: auto;
+          margin: 1rem 0;
+        }
+
+        .rich-text-preview pre code {
+          background-color: transparent;
+          padding: 0;
+        }
+      `}</style>
     </div>
   )
 }

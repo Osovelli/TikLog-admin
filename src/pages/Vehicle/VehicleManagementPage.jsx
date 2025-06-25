@@ -189,11 +189,11 @@ export const VehicleManagementPage = () => {
             <div className="flex justify-center items-center p-8">
               <div className="text-gray-500">Loading vehicles...</div>
             </div>
-          ) : error ? (
+          ) : /* error ? (
             <div className="flex justify-center items-center p-8">
               <div className="text-red-500">Error: {error}</div>
             </div>
-          ) : (
+          ) : */ (
             <Table
               name={"Vehicle"}
               columns={activeTab === "vehicles" ? vehicleColumns : typeColumns}

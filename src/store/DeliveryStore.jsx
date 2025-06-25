@@ -13,9 +13,9 @@ const useDeliveryStore = create((set) => ({
     set({ loading: true, error: null });
     try {
         const response = await axiosInstance.get('admin/delivery_management/all_deliveries');
-        console.log("GET ALL ORDERS RESPONSE", response.data)
+        //console.log("GET ALL ORDERS RESPONSE", response.data)
         set({ loading: false, allOrders: response.data });
-        toast.success("All orders fetched successfully");
+        //toast.success("All orders fetched successfully");
         return response.data;
     } 
     catch (error) {
@@ -31,15 +31,15 @@ const useDeliveryStore = create((set) => ({
     set({ loading: true, error: null });
     try {
         const response = await axiosInstance.get(`/admin/delivery_management/${id}`);
-        console.log("GET ORDERS BY ID RESPONSE", response.data)
+        //console.log("GET ORDERS BY ID RESPONSE", response.data)
         set({ loading: false, order: response.data})
-        toast.success("Order fetched successfully")
+        //toast.success("Order fetched successfully")
         return response.data;
     } 
     catch (error) {
         console.error("Get Orders By Id failed", error);
         set({ loading: false, error: error.message });
-        toast.error("Failed to fetch order")
+        //toast.error("Failed to fetch order")
         throw error; // Re-throw to handle in component if needed
       }
     },

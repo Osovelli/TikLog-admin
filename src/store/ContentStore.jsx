@@ -61,7 +61,7 @@ const useContentStore = create((set, get) => ({
       return requestedContent
     } catch (error) {
       console.error("Get content failed", error)
-      toast.error(error.response?.data?.message || "An error occurred while fetching content")
+      //toast.error(error.response?.data?.message || "An error occurred while fetching content")
       set({ loading: false, error: "Get content failed. Please try again.", showErrorModal: true })
       throw error
     }
@@ -71,7 +71,7 @@ const useContentStore = create((set, get) => ({
     set({ loading: true, error: null })
     try {
       const response = await axiosInstance.get("/content/all")
-      console.log("GET ALL CONTENT RESPONSE", response.data)
+      //console.log("GET ALL CONTENT RESPONSE", response.data)
 
       // Transform array to object keyed by name
       const contentObj = {}
@@ -85,7 +85,7 @@ const useContentStore = create((set, get) => ({
       return response.data.data
     } catch (error) {
       console.error("Get all content failed", error)
-      toast.error(error.response?.data?.message || "An error occurred while fetching content")
+      //toast.error(error.response?.data?.message || "An error occurred while fetching content")
       set({ loading: false, error: "Get all content failed. Please try again.", showErrorModal: true })
       throw error
     }

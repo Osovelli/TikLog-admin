@@ -31,12 +31,12 @@ const useRoleStore = create((set) => ({
         try {
             const res = await axiosInstance.get('/roles');
             set({  loading: false,  adminRoles: res.data?.data});
-            console.log("All roles", res.data.data.data)
-            toast.success(res.data.message);
+            //console.log("All roles", res.data.data.data)
+            //toast.success(res.data.message);
         } catch (error) {
             set({ error: error.response?.data?.message || "Error Fetching Admin Roles", loading: false });
-            console.log(error);
-            toast.error(error.response.data.message || "An error occurred while fetching roles");
+            //console.log(error);
+            //toast.error(error.response.data.message || "An error occurred while fetching roles");
         }
     },
 
@@ -50,12 +50,12 @@ const useRoleStore = create((set) => ({
       try {
           const res = await axiosInstance.get(`/roles/${_id}`);
           set({  loading: false,  selectedRole: res.data.data});
-          console.log("SELECTED ROLE", res.data.data.data)
-          toast.success(res.data.message);
+          //console.log("SELECTED ROLE", res.data.data.data)
+          //toast.success(res.data.message);
       } catch (error) {
           set({ error: error.response?.data?.message || "Error Fetching Admin Roles", loading: false });
-          console.log(error);
-          toast.error(error.response.data.message || "An error occurred while fetching roles");
+          //console.log(error);
+          //toast.error(error.response.data.message || "An error occurred while fetching roles");
       }
   },
 
@@ -168,12 +168,12 @@ getPermissions: async () => {
   set({ loading: true, error: null });
   try {
     const response = await axiosInstance.get('/admin/permission');
-    console.log("GET PERMISSIONS RESPONSE", response);
+    //console.log("GET PERMISSIONS RESPONSE", response);
     set({ loading: false, permissions: response.data.data });
     return response.data;
   } catch (error) {
-    console.error("Get Permissions failed", error);
-    toast.error(error.response?.data?.message || "An error occurred while fetching permissions");
+    //console.error("Get Permissions failed", error);
+    //toast.error(error.response?.data?.message || "An error occurred while fetching permissions");
     set({ loading: false, error: 'Get Permissions failed. Please try again.', showErrorModal: true });
     throw error; // Re-throw to handle in component if needed
   }
