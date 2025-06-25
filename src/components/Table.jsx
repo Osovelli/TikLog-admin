@@ -79,7 +79,7 @@ export const Table = ({
   };
 
   const renderPagination = () => (
-    <div className="flex items-center justify-between mt-4">
+    <div className="flex items-center justify-between mt-4 p-3">
       <span className="text-sm text-gray-700">
         Total {name || "Users"}: <span className="font-medium">{sortedData.length}</span>
       </span>

@@ -65,7 +65,7 @@ createVehicle: async (vehicleData) => {
         formData.append("back_image", vehicleData.back_image)
       }
 
-      const res = await axiosInstance.post("/rider/vehicle", formData, {
+      const res = await axiosInstance.post("/rider/vehicle/rider_vehicle", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
 

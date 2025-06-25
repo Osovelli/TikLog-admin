@@ -132,7 +132,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
       toast.success("Vehicle created successfully!")
 
       // Refresh the vehicles list
-      //await fetchVehicles()
+      await fetchVehicles()
 
       // Reset form and close modal
       handleClose()
