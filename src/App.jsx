@@ -17,7 +17,7 @@ import { CustomerPage } from './pages/Customer/CustomerPage';
 import { CustomerInfo } from './pages/Customer/CustomerInfo';
 import { RiderPage } from './pages/Rider/RiderPage';
 import { RiderInfo } from './pages/Rider/RiderInfo';
-import { VendorPage } from './pages/Vendor/vendorPage';
+import { VendorPage } from './pages/Vendor/VendorPage';
 import { VendorInfo } from './pages/Vendor/VendorInfo';
 import { TransactionPage } from './pages/Transaction/TransactionPage';
 import { DeliveryPage } from './pages/Delivery/DeliveryPage';
