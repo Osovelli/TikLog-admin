@@ -133,9 +133,9 @@ export const VendorPage = () => {
     return value;
   };
 
-  const handleViewClick = (vendor) => {
+  /* const handleViewClick = (vendor) => {
     console.log('View clicked:', user);
-  };
+  }; */
 
 
   const handleManageUser = (vendor) => {
