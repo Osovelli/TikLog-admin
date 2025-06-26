@@ -37,7 +37,7 @@ export function ViewRoleDetails({ role, isOpen, onClose }) {
             </div>
             <div className="col-span-3 text-sm font-light">{new Date(role.createdAt).toLocaleString() !== 'Invalid Date' ||  "No date provided."}</div>
           </div>
-          {/* Add more details as needed */}
+          {/* Add more details as needed*/}
         </div>
       </SheetContent>
     </Sheet>
