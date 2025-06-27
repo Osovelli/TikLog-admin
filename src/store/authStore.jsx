@@ -88,6 +88,8 @@ const useAuthStore = create((set) => ({
       console.error("Login failed", error);
       toast.error(error.response.data.message)
       set({ loading: false, error: 'Login failed. Please check your credentials.', showErrorModal: true });
+    } finally {
+      set({ loading: false });
     }
   },
 

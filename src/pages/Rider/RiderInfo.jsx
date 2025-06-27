@@ -206,7 +206,7 @@ export const RiderInfo = () => {
           className="mySwiper"
         >
           {tabs.map(tab => (
-            <SwiperSlide key={tab.id} className="w-auto">
+            <SwiperSlide key={tab.id} className="w-auto px-4 sm:px-6">
               <button
                 onClick={() => setActiveTab(tab.id)}
                 className={`pb-4 px-1 text-xs sm:text-base whitespace-nowrap ${

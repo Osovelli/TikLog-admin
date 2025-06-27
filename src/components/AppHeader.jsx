@@ -91,7 +91,10 @@ export const AppHeader = ({icon, name, toggleSidebar, showBack}) => {
           </div>}
         </div>
 
-        <div className='sm:hidden'>
+        <div 
+        className='sm:hidden'
+        onClick={()=> {navigate("/")}}
+        >
          <img 
             src='/tiklogs logo_white.png' 
             className="w-auto h-8 object-contain shrink-0" 

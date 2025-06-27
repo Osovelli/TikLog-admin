@@ -36,14 +36,14 @@ export const ProfileHeader = ({
       </div>
       {/* Profile Info */}
       <div className="relative bg-white border rounded-t-lg p-2 sm:p-6">
-          <div className="flex flex-col sm:flex-row mt-6 items-start justify-between">
+          <div className="flex flex-col sm:flex-row mt-6 gap-3 items-start justify-between">
             <div className="flex sm:flex-row sm:items-center gap-4 ">
               <img
                 src={imageUrl || "/college girl.jpeg"}
                 alt={name}
                 className="absolute -top-12 sm:w-40 w-24 h-24 sm:h-40 rounded-full object-cover"
               />
-              <div className='mt-4 sm:mt-0 sm:ml-48'>
+              <div className='mt-4 sm:mt-0 space-y-1 sm:ml-48'>
                 <h1 className="text-2xl font-semibold text-gray-900">
                   {name}
                 </h1>
@@ -54,7 +54,7 @@ export const ProfileHeader = ({
               <CustomButton
                 buttonVariant={'outlined'}
                 onClick={onDeactivate}
-                className="py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex-shrink w-44"
+                className="py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex-shrink md:w-44"
                 disabled={isActive === 'Inactive'}
               >
                 Deactivate user
@@ -62,7 +62,7 @@ export const ProfileHeader = ({
               <CustomButton
                 buttonVariant={'primary'}
                 onClick={onActivate}
-                className="py-2 text-white bg-[#27115F] rounded-lg  flex-shrink w-44"
+                className="py-2 text-white bg-[#27115F] rounded-lg  flex-shrink md:w-44"
                 disabled={isActive === 'Active'}
               >
                 Activate user

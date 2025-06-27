@@ -46,7 +46,7 @@ const WalletHeader = ({ walletData, onAddFund, onFreezeWallet }) => {
   }, [walletData])
 
   return (
-    <div className="bg-[#1F1F76] text-white p-6 rounded-lg">
+    <div className="bg-[#1F1F76] text-white p-6 mx-2 rounded-lg">
       <div className="mb-6">
         <p className="text-gray-300 mb-2">Wallet balance</p>
         <h1 className="text-4xl font-bold">₦{walletBalance.toLocaleString()}.00</h1>

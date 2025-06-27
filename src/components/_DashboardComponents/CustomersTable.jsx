@@ -79,7 +79,7 @@ export const CustomersTable = () => {
         <CustomButton
           onClick={handleAddNew}
           buttonVariant={"primary"}
-          className=" text-white rounded-xl  transition-colors px-8 py-6"
+          className=" text-white rounded-xl transition-colors px-4 md:px-8 py-6"
         >
           <Plus size={20} />
           <span>Add New</span>

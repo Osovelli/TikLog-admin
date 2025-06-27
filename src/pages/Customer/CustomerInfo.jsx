@@ -224,7 +224,7 @@ export const CustomerInfo = ({ customerId }) => {
 
   return (
     <AppLayout showBackButton={false} showAppHeader={true}>
-    <div className="min-h-screen bg-gray-50 md:px-6">
+      <div className="min-h-screen bg-gray-50 md:px-6">
       {/* Header */}
       {/* <div className="mb-8">
         <Link 
@@ -274,7 +274,7 @@ export const CustomerInfo = ({ customerId }) => {
  */}
       {/* Navigation Tabs */}
       <div className="my-4">
-        <nav className="flex gap-8">
+        <nav className="flex gap-8 px-3">
           {[
             { id: 'profile', label: 'Profile Information' },
             { id: 'deliveries', label: 'All Deliveries' },

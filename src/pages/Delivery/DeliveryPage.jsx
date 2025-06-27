@@ -4,6 +4,10 @@ import { Table } from '@/components/Table';
 import { AppLayout } from '@/components/AppLayout';
 import { useNavigate } from 'react-router';
 import useDeliveryStore from '@/store/DeliveryStore';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/free-mode';
 
 const TabButton = ({ label, active, onClick }) => (
   <button
@@ -267,7 +271,7 @@ export const DeliveryPage = () => {
     <AppLayout title={"Deliveries Management"}>
       <div className="space-y-6 bg-white p-8 rounded-lg">
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+          {/* <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
             {tabs.map((tab) => (
               <TabButton
                 key={tab.id}
@@ -276,10 +280,30 @@ export const DeliveryPage = () => {
                 onClick={() => setActiveTab(tab.id)}
               />
             ))}
+          </div> */}
+          <div className="w-full sm:w-auto overflow-x-auto gap-2 p-1 bg-gray-100 rounded-lg">
+            <Swiper
+              slidesPerView="auto"
+              spaceBetween={10}
+              freeMode={true}
+              modules={[FreeMode]}
+              className="mySwiper"
+            >
+              {tabs.map(tab => (
+                <SwiperSlide key={tab.id} className="w-auto">
+                  <TabButton
+                    key={tab.id}
+                    label={tab.label}
+                    active={activeTab === tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
-          <div className="text-sm text-gray-500">
+          {/* <div className="text-sm text-gray-500">
             Total: {deliveriesData.length} | Showing: {filteredData.length}
-          </div>
+          </div> */}
         </div>
 
         <Table

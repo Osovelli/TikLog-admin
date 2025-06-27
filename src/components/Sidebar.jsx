@@ -168,7 +168,7 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
         md:relative md:translate-x-0
       `}
       >
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col pt-4">
           {/* Logo */}
           <div className="hidden p-6 ml-9 sm:ml-0">
             <Logo />

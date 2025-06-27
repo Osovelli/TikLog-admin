@@ -240,7 +240,7 @@ export const VendorInfo = ({ customerId }) => {
       />
 
       {/* Navigation Tabs */}
-      <div className="my-4">
+      <div className="my-4 px-4">
         <Swiper
           slidesPerView="auto"
           spaceBetween={32}

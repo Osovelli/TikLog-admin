@@ -44,25 +44,27 @@ export const AppLayout = ({children, icon, title, showBackButton=true, showAppHe
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Fixed header */}
           {showAppHeader && 
-          <AppHeader 
-            icon={icon} 
-            name={title} 
-            toggleSidebar={toggleSidebar}
-            showBack={showBackButton}
-            
-          /> 
+          <div className='mt-6'>
+            <AppHeader 
+              icon={icon} 
+              name={title} 
+              toggleSidebar={toggleSidebar}
+              showBack={showBackButton}
+              className
+            /> 
+          </div>
           }
 
           {/* Scrollable content area */}
-          <div className="flex-1 overflow-auto pt-16">
-            <div className='fixed top-12 left-0 z-10 w-full bg-white px-4 py-2 flex items-center justify-between md:hidden'>
+          <div className="flex-1 overflow-auto pt-10">
+            {/* <div className='fixed top-12 left-0 z-10 w-full bg-white px-4 py-2 flex items-center justify-between md:hidden'>
             <button 
               className={`z-50 md:hidden py-4 bg-white rounded-full shadow-md transition-transform'}`}
               onClick={()=> {navigate(-1)}}
             >
               <ArrowLeftCircle size={24} />
             </button>
-            </div>
+            </div> */}
             {children}
           </div>
         </div>
