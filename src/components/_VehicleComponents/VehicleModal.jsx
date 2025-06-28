@@ -184,7 +184,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
       ]}
     >
       <div className="space-y-4 p-4">
-        {/* Rider Phone Number Search */}
+        {/* Rider Phone Number Search  */}
         <div className="space-y-2">
           <Label htmlFor="phone">Rider Phone Number</Label>
           <Input
@@ -193,15 +193,35 @@ export const VehicleModal = ({ isOpen, onClose }) => {
             placeholder="Enter rider's phone number"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
+            className="focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0  focus-visible:ring-offset-0"
           />
           {riderSearching && <p className="text-sm text-blue-600">Searching for rider...</p>}
           {selectedRider && (
             <div className="p-2 bg-green-50 border border-green-200 rounded">
               <p className="text-sm text-green-800">
-                ✓ Rider found: {selectedRider.firstName || selectedRider.first_name || ""}{" "}
-                {selectedRider.lastName || selectedRider.last_name || ""}
+                ✓ Rider found: 
               </p>
-              <p className="text-xs text-green-600">ID: {selectedRider._id}</p>
+              <div className="flex gap-2 justify-center items-center">
+                {/* Rider image or avatar */}
+                {selectedRider.image ? (
+                  <img
+                    src={selectedRider.image}
+                    alt="Rider"
+                    className="w-8 h-8 rounded-full object-cover border border-green-300"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-bold border border-green-300">
+                    {(selectedRider.firstname?.[0] || "").toUpperCase()}
+                  </div>
+                )}
+                <p className="text-lg text-green-600">
+                  {selectedRider.firstname || ""}{" "}{selectedRider.lastname || 
+                  <span className="text-xs text-green-600">
+                    ID: {selectedRider._id}
+                  </span> || ""}
+                </p>
+              </div>
+              {/* <p className="text-xs text-green-600">ID: {selectedRider._id}</p> */}
             </div>
           )}
         </div>
@@ -209,8 +229,12 @@ export const VehicleModal = ({ isOpen, onClose }) => {
         {/* Vehicle Type */}
         <div className="space-y-2 text-left">
           <Label>Vehicle Type</Label>
-          <Select value={formData.vehicle_type} onValueChange={(value) => handleInputChange("vehicle_type", value)}>
-            <SelectTrigger className="w-full">
+          <Select 
+          value={formData.vehicle_type} 
+          onValueChange={(value) => handleInputChange("vehicle_type", value)}
+          className=""
+          >
+            <SelectTrigger className="w-full focus:ring-0 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0 focus:ring-ring focus-visible:ring-offset-0">
               <SelectValue placeholder="Select vehicle type" />
             </SelectTrigger>
             <SelectContent className="z-[200]">
@@ -226,7 +250,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
         <div className="space-y-2 text-left">
           <Label>Vehicle Make</Label>
           <Select value={formData.make} onValueChange={(value) => handleInputChange("make", value)}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full w-full focus:ring-0 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0 focus:ring-ring focus-visible:ring-offset-0">
               <SelectValue placeholder="Select make" />
             </SelectTrigger>
             <SelectContent className="z-[200]">
@@ -250,6 +274,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
               placeholder="Enter model"
               value={formData.model}
               onChange={(e) => handleInputChange("model", e.target.value)}
+              className="focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0  focus-visible:ring-offset-0"
             />
           </div>
 
@@ -257,7 +282,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
           <div className="space-y-2 text-left">
             <Label>Year</Label>
             <Select value={formData.year} onValueChange={(value) => handleInputChange("year", value)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full focus:ring-0 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0 focus:ring-ring focus-visible:ring-offset-0">
                 <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent className="z-[200] max-h-[200px]">
@@ -275,7 +300,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
         <div className="space-y-2 text-left">
           <Label>Color</Label>
           <Select value={formData.color} onValueChange={(value) => handleInputChange("color", value)}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full focus:ring-0 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0 focus:ring-ring focus-visible:ring-offset-0">
               <SelectValue placeholder="Select color">
                 {formData.color && (
                   <div className="flex items-center gap-2">
@@ -341,6 +366,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
             placeholder="Enter plate number"
             value={formData.plate_number}
             onChange={(e) => handleInputChange("plate_number", e.target.value.toUpperCase())}
+            className="focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0  focus-visible:ring-offset-0"
           />
         </div>
 
@@ -352,6 +378,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
               type="date"
               value={formData.issue_date}
               onChange={(e) => handleInputChange("issue_date", e.target.value)}
+              
             />
           </div>
           <div className="space-y-2">
