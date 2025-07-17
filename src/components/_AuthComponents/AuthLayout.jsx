@@ -33,7 +33,7 @@ export const AuthLayout = ({
                 </div>
             </div>
         </section>
-        <footer className='w-full flex items-center p-6 h-[10vh]'>
+        <footer className='w-full flex items-center p-6 h-[10vh] fixed bottom-0 bg-indigo-600 md:bg-white'>
             <div className='w-full flex justify-between'>
                 <p className='text-sm font-medium'>©2024 Tiklog</p>
                 <p className='text-sm font-medium'>Privacy Policy</p>

@@ -13,6 +13,7 @@ const useUserStore = create((set) => ({
   userDeliveries: null,
   riderDeliveries: null,
   vendorDeliveries: null,
+  singleWallet: null,
   loading: false,
   error: null,
   showErrorModal: false,
@@ -54,7 +55,7 @@ const useUserStore = create((set) => ({
     try {
       //console.log("Fetching user with ID:", id);
       const response = await axiosInstance.get(`/admin/user_management/all_users/${id}`);
-      //console.log("GET SINGLE USER RESPONSE", response.data);
+      console.log("GET SINGLE USER RESPONSE", response.data);
       set({ loading: false, singleUser: response.data });
       //toast.success("User fetched successfully");
       return response.data.data;
@@ -65,6 +66,23 @@ const useUserStore = create((set) => ({
       throw error; // Re-throw to handle in component if needed
     }
   },
+
+  updateUser: async (id, userData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.put(`/admin/user_management/all_users/${id}`, userData);
+      //console.log("UPDATE USER RESPONSE", response.data);
+      set({ loading: false });
+      toast.success("User updated successfully");
+      return response.data;
+    } catch (error) {
+      console.error("Update User failed", error);
+      toast.error(error.response?.data?.message || "An error occurred while updating the user");
+      set({ loading: false, error: 'Update User failed. Please check your credentials.', showErrorModal: true });
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
+
 
   deleteUser: async (id) => {
     set({ loading: true, error: null });
@@ -246,7 +264,7 @@ const useUserStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axiosInstance.get(`/admin/user_management/all_users/${id}/deliveries`);
-      //console.log("GET USER DELIVERIES RESPONSE", response.data);
+      console.log("GET USER DELIVERIES RESPONSE", response.data);
       set({ loading: false, userDeliveries: response.data });
       //toast.success("User deliveries fetched successfully");
       return response.data;
@@ -310,7 +328,7 @@ getUserWalletById: async (id) => {
   set({ loading: true, error: null });
   try{
     const response = await axiosInstance.get(`/admin/user_management/all_users/${id}/wallet`);
-    //console.log("GET USER WALLET RESPONSE", response.data);
+    console.log("GET USER WALLET RESPONSE", response.data);
     set({ loading: false, userWallet: response.data });
     //toast.success("User wallet fetched successfully");
     return response.data;
@@ -322,6 +340,39 @@ getUserWalletById: async (id) => {
     throw error; // Re-throw to handle in component if needed
   }
 },
+
+getSingleWallet: async({id}) => {
+  set({ loading: true, error: null });
+  try{
+    const response = await axiosInstance.get(`/admin/user_management/wallet/${id}`);
+
+    console.log("GET SINGLE WALLET RESPONSE", response.data);
+    set({ loading: false, singleWallet: response.data });
+    return response.data;
+  }
+  catch(error){
+    console.error("Get Single Wallet failed", error)
+    set({ loading: false, error: 'Get Single Wallet failed. Please try again.', showErrorModal: true})
+    throw error; // Re-throw to handle in component if needed
+  }
+},
+
+getVendorVehicleById: async(id) => {
+  set({ loading: true, error: null });
+  //console.log("Fetching user address for user", id)
+    try{
+      const response = await axiosInstance.get(`/rider/vehicle/${id}`);
+      console.log("GET Vendor vehicle", response.data);
+      set({ loading: false, userAddress: response.data });
+      //toast.success("User address fetched successfully");
+      return response.data;
+    }
+    catch(error){
+      console.error("Get vendor vehicles", error)
+      set({ loading: false, error: 'Get User Address failed. Please try again.', showErrorModal: true})
+      throw error; // Re-throw to handle in component if needed
+    }
+  },
     
   openErrorModal: (error) => set({ showErrorModal: true, error }),
 

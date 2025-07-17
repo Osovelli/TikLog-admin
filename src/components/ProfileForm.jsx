@@ -110,6 +110,7 @@ export const ProfileForm = ({ formData, onInputChange, onSave }) => {
               value={formData.address}
               onChange={(e) => onInputChange('address', e.target.value)}
               className="w-full p-2 pl-10 border rounded-lg focus:ring-0"
+              placeholder='User address'
             />
             <MapPin className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
           </div>

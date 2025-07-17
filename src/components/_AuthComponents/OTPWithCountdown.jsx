@@ -45,14 +45,14 @@ export default function OTPWithCountdown() {
   };
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 ">
       <InputOTP
         value={otp}
         onChange={setOtp}
         maxLength={4}
         disabled={isDisabled}
       >
-        <InputOTPGroup className='flex gap-3'>
+        <InputOTPGroup className='flex gap-3 justify-center w-full'>
           <InputOTPSlot index={0} />
           <InputOTPSlot index={1} />
           <InputOTPSeparator className=""/>
@@ -60,11 +60,11 @@ export default function OTPWithCountdown() {
           <InputOTPSlot index={3} className='' />
         </InputOTPGroup>
       </InputOTP>
-      <div className="flex items-center space-x-12 text-sm">
+      <div className="flex items-center  justify-center space-x-12 text-sm">
         <button
           onClick={handleResend}
           disabled={!isDisabled}
-          className="text-blue-600 disabled:text-gray-400"
+          className="text-blue-600 disabled:text-gray-400 "
         >
           Send code reload in
         </button>
@@ -81,3 +81,5 @@ export default function OTPWithCountdown() {
     </div>
   );
 }
+
+

@@ -6,16 +6,42 @@ import { OngoingDelivery } from '@/components/_HomeOVerviewComponents/OngoingDel
 import NewDeliverySideMenu from '@/components/_HomeOVerviewComponents/DeliverySideMenu'
 import { WalletCard } from '@/components/_HomeOVerviewComponents/WalletCard'
 import { HomeIcon, Plus, SearchCheck } from 'lucide-react'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useModal } from '@/lib/ModalContext'
 import { DeliveryDetails } from '@/components/_HomeOVerviewComponents/DeliveryDetails'
 import { WalletCard as WalletIcon } from '@/icon/Icons'
 import { HighlightSection } from '@/components/_DashboardComponents/HighlightSection'
 import { UsersOverview } from '@/components/_DashboardComponents/UsersOverview'
 import { CustomersTable } from '@/components/_DashboardComponents/CustomersTable'
+import useDashboardStore from '@/store/DashboardStore'
+import { UserAnalyticsCharts } from '@/components/_DashboardComponents/UserAnalyticsCharts'
 
 export const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const {
+    getUserDashboardData,
+    getDashboardUserDetails,
+    getDashboardMonthlyData,
+    getDashboardUserAnalytics,
+    getDashboardUserGrowth
+  } = useDashboardStore()
+
+  // Fetch dashboard data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        await getUserDashboardData()
+        await getDashboardUserDetails()
+        await getDashboardMonthlyData()
+        await getDashboardUserAnalytics()
+        await getDashboardUserGrowth()
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error)
+      }
+    }
+    fetchDashboardData()
+  }, [])
 
   const {openModal, closeModal} = useModal()
 
@@ -53,10 +79,11 @@ export const HomePage = () => {
     title={'Hello Admin'}
     showBackButton={false}
     >
-      <div className="p-8 mt-10">
+      <div className="p-8 mt-8 space-y-2">
         <HighlightSection />
         <UsersOverview />
-        <CustomersTable />
+        <UserAnalyticsCharts />
+        {/* <CustomersTable /> */}
           
           <NewDeliverySideMenu
             isOpen={isMenuOpen}

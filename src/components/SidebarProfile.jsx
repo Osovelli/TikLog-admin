@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { CheckCircle2, ChevronDown, LogOut, LogOutIcon, UserCog } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -14,10 +14,15 @@ import useAuthStore from '@/store/authStore'
 
 
 export const SidebarProfile = ({ name, email, avatarUrl, isVerified = false }) => {
-  const { logout } = useAuthStore()
+  const { logout, getMe, adminData } = useAuthStore()
   const navigate = useNavigate()
   // const { user, token, isLoggedIn } = useAuthStore((state) => ({ ...state }));
   // console.log("SidebarProfile user", user)
+
+  useEffect(() => {
+    getMe();
+  }, [getMe]);
+
 
   const handleSignOut = async() => {
     // Implement sign-out logic here
@@ -27,10 +32,14 @@ export const SidebarProfile = ({ name, email, avatarUrl, isVerified = false }) =
     
   }
 
+  const handlenavigateProfile = () => {
+    navigate('/profile', { replace: true })
+  } 
+
   return (
     <div className="flex items-center space-x-4 p-2 mb-6 hover:bg-gray-50 bg-white rounded-lg shadow">
       <div className="relative">
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-10 w-10 cursor-pointer" onClick={handlenavigateProfile}>
           <AvatarImage src={avatarUrl} alt={name} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>

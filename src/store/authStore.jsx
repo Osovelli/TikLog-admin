@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axiosInstance from "@/lib/utils/axiosInstance";
+import { useNavigate } from "react-router";
+
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -93,11 +95,85 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  resetEmail: async (phone_number) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.post('/auth/admin/forgot', { phone_number });
+      console.log("Reset Email Response", response)
+      toast.success(response.data.message);
+      set({ loading: false });
+      return response.data;
+    } catch (error) {
+      console.error("Reset Email failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Reset Email failed. Please try again.', showErrorModal: true });
+      return { success: false, error: error.response.data.message };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+
+  changePassword: async ({ oldPassword, newPassword, otp }) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.post('/auth/change-password', { oldPassword, newPassword, otp });
+      console.log("Change Password Response", response)
+      toast.success(response.data.message);
+      set({ loading: false });
+      return { success: true };
+    } catch (error) {
+      console.error("Change password failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Change password failed. Please try again.', showErrorModal: true });
+      return { success: false, error: error.response.data.message };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  resetPassword: async ({ new_password, confirm_password, otp }) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.post('/auth/reset-password', { new_password, confirm_password, otp });
+      console.log("Reset Password Response", response)
+      toast.success(response.data.message);
+      set({ loading: false });
+      return { success: true };
+    } catch (error) {
+      console.error("Reset password failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Reset password failed. Please try again.', showErrorModal: true });
+      return { success: false, error: error.response.data.message };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  resendotp: async (email) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.post('/auth/admin/resend_otp', { email });
+      console.log("Resend OTP Response", response)
+      toast.success(response.data.message);
+      set({ loading: false });
+      return response.data;
+    } catch (error) {
+      console.error("Resend OTP failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Resend OTP failed. Please try again.', showErrorModal: true });
+      return { success: false, error: error.response.data.message };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+
   getMe: async () => {
 		set({ loading: true });
 
 		try {
-			const res = await axiosInstance.get(`/admin/me`);
+			const res = await axiosInstance.get("/admin/me");
 			set({  loading: false,  adminData: res.data.data});
 			console.log("single client result",res.data.data)
 			//toast.success(res.data.message);

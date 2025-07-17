@@ -7,6 +7,8 @@ import { SidebarProfile } from "./SidebarProfile"
 import { Link, useLocation } from "react-router-dom"
 import { FaDesktop } from "react-icons/fa"
 import { cn } from "@/lib/utils"
+import { hasPermission } from "@/lib/utils/roleAuthorization"
+import useAuthStore from "@/store/authStore"
 
 const SidebarItem = ({ icon, text, routeName, children }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -85,10 +87,18 @@ const NestedSidebarItem = ({ icon, text, routeName, count, isNested = false }) =
 
 export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
   const [isMobile, setIsMobile] = useState(false)
+  const {getMe, adminData} = useAuthStore()
+
+
 
  /*  console.log("Sidebar Data:", data)
   console.log("Data type:", typeof data)
   console.log("Data keys:", data ? Object.keys(data) : "No data") */
+  useEffect(()=>{
+    getMe()
+  },[])
+
+  console.log("ADMIN DATAS", adminData)
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -177,33 +187,56 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
           {/* Navigation Items */}
           <div className="flex-1 px-4 mt-10 sm:mt-2 overflow-y-auto">
             <nav className="space-y-1 mt-2">
+
+              {/* Dashboard */}
               <NestedSidebarItem icon={<FaDesktop size={20} />} text="Dashboard" routeName={""} />
 
-              <SidebarItem icon={<User size={20} />} text="User Management" routeName="profile">
-                {userManagementData.length > 0 ? (
-                  userManagementData.map((user) => (
-                    <NestedSidebarItem
-                      key={user.id}
-                      text={user.name}
-                      routeName={user.routeName}
-                      count={user.count}
-                      isNested
-                    />
-                  ))
-                ) : (
-                  // Fallback content when no data is available
-                  <div className="pl-11 p-2 text-gray-500 text-sm">Loading user data...</div>
-                )}
-              </SidebarItem>
 
-              <NestedSidebarItem icon={<PiNoteLight size={20} />} text="Transaction" routeName="transaction" />
-              <NestedSidebarItem icon={<Package size={20} />} text="Deliveries" routeName="deliveries" />
-              <NestedSidebarItem icon={<Truck size={20} />} text="Vehicles" routeName="vehicle" />
+              {/* User Management */}
+              {hasPermission(adminData?.permissions, ["create_user_management", "read_user_management", "update_user_management", "delete_user_management"]) && (
+                <SidebarItem icon={<User size={20} />} text="User Management" routeName="profile">
+                  {userManagementData.length > 0 ? (
+                    userManagementData.map((user) => (
+                      <NestedSidebarItem
+                        key={user.id}
+                        text={user.name}
+                        routeName={user.routeName}
+                        count={user.count}
+                        isNested
+                      />
+                    ))
+                  ) : (
+                    // Fallback content when no data is available
+                    <div className="pl-11 p-2 text-gray-500 text-sm">Loading user data...</div>
+                  )}
+                </SidebarItem>
+              )}
+
+              {/* transaction */}
+              {hasPermission(adminData?.permissions, ["create_transactions", "read_transactions", "update_transactions", "delete_transactions"]) && (
+                <NestedSidebarItem icon={<PiNoteLight size={20} />} text="Transaction" routeName="transaction" />
+              )}
+              
+              {/* Deliveries */}
+              {hasPermission(adminData?.permissions, ["create_deliveries", "read_deliveries", "update_deliveries", "delete_deliveries"]) && (  
+                <NestedSidebarItem icon={<Package size={20} />} text="Deliveries" routeName="deliveries" />
+              )}
+
+              {/* Vehicles */}
+              {hasPermission(adminData?.permissions, ["create_vehicle_type", "read_vehicle_type", "update_vehicle_type", "delete_vehicle_type"]) && (    
+                <NestedSidebarItem icon={<Truck size={20} />} text="Vehicles" routeName="vehicle" />
+              )}
+
+
+              {/* Chat Management */}
+              {hasPermission(adminData?.permissions, ["create_chat", "read_chat", "update_chat", "delete_chat"]) && (
               <NestedSidebarItem
                 icon={<HiOutlineChatBubbleLeftRight size={20} />}
                 text="Chat Management"
                 routeName="chat"
               />
+              )}
+
             </nav>
           </div>
 
@@ -211,7 +244,11 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
           <div className="px-4">
             <NestedSidebarItem icon={<Settings size={20} />} text="Roles and Permission" routeName="admin-users" />
             <NestedSidebarItem icon={<FaDesktop size={20} />} text="Website Settings" routeName="settings" />
-            <SidebarProfile name="Tiklog Admin" email="Admin@tiklog.com" avatarUrl="/Avatar1.png" />
+            <SidebarProfile 
+              name={adminData?.firstname + " " + adminData?.lastname || "Admin"} 
+              email={adminData?.email || "Admin@tiklog.com"} 
+              avatarUrl={adminData?.avatar || "/Avatar1.png"} 
+            />
           </div>
         </div>
       </div>

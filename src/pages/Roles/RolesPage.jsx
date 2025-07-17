@@ -139,7 +139,7 @@ const rolesData = getFilteredRoles(allRolesData, activeTab)
 const SingleRole = selectedRole?.data;
       
 
-  const adminsData = [
+  /* const adminsData = [
     {
       id: 1,
       name: 'Goodluck Ebele-Jonathan',
@@ -163,7 +163,7 @@ const SingleRole = selectedRole?.data;
       status: 'Active',
       avatar: '/Avatar1.png'
     }))
-  ];
+  ]; */
 
   const renderCustomCell = (key, value, row) => {
     if (key === 'status') {

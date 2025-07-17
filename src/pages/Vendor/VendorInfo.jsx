@@ -32,11 +32,13 @@ export const VendorInfo = ({ customerId }) => {
     expiryDate: '',
     businessName: '',
     businessType: "",
-    businessRegNumber: ''
+    businessRegNumber: '',
+    status: null, // Added status field
   });
   const [vendorDeliveries, setVendorDeliveries] = useState([]);
   const [vendorWallet, setVendorWallet] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
   const tabs = [
     { id: 'profile', label: 'Profile Information' },
@@ -54,8 +56,23 @@ export const VendorInfo = ({ customerId }) => {
     deactivateVendor,
     getVendorDeliveriesById,
     getUserWalletById, 
-    loading 
+    loading,
+    getVendorVehicleById,
   } = useUserStore();
+
+  // Helper function to normalize status
+  const normalizeStatus = (status) => {
+    if (typeof status === "string") {
+      const lowerStatus = status.toLowerCase()
+      if (lowerStatus === "active") return "active"
+      if (lowerStatus === "inactive") return "inactive"
+      if (lowerStatus === "pending") return "pending"
+    }
+    if (status === true) return "active"
+    if (status === false) return "inactive"
+    return "pending" // Default fallback
+  }
+
 
   // Fetch user data when component mounts
   /* useEffect(() => {
@@ -99,10 +116,10 @@ export const VendorInfo = ({ customerId }) => {
       
       if (vendorData) {
       setFormData({
-        firstName: vendorData.firstname || 'James',
-        lastName: vendorData.lastname || 'Okpeba',
-        email: vendorData.email || 'user@tiklog.com',
-        phone: vendorData.phone_number || '8100441503',
+        firstName: vendorData.firstname || '',
+        lastName: vendorData.lastname || '',
+        email: vendorData.email || '',
+        phone: vendorData.phone_number || '',
         countryCode: vendorData.country_code || '+234',
         birthDate: vendorData.date_of_birth || '22-02-2022',
         gender: vendorData.gender || 'Male',
@@ -111,7 +128,8 @@ export const VendorInfo = ({ customerId }) => {
         expiryDate: vendorData.expiry_date || '22-02-2022',
         businessName: vendorData.business_name || 'ABC Inc',
         businessType: vendorData.business_type || "Logistics",
-        businessRegNumber: vendorData.business_reg_number || '103222455'
+        businessRegNumber: vendorData.business_reg_number || '103222455',
+        status: normalizeStatus(vendorData.status),
       });
     }
     } catch (error) {
@@ -181,24 +199,51 @@ export const VendorInfo = ({ customerId }) => {
 
   const handleActivateVendor = async () => {
     try {
-      console.log('activating vendor...');
-      await activateVendor(vendorId)  
+      setIsUpdatingStatus(true)
+      console.log("Activating vendor...")
+      await activateVendor(vendorId)
+
+      // Update local state immediately for better UX
+      setFormData((prev) => ({
+        ...prev,
+        status: "active",
+      }))
+
+      // Refresh user data to get the latest status from server
+      await fetchVendorData()
     } catch (error) {
-      console.error('Error activating Vendor:', error);
+      console.error("Error activating vendor:", error)
+      // Revert local state if API call failed
+      await fetchVendorData() // Refresh to get actual status
+    } finally {
+      setIsUpdatingStatus(false)
     }
   }
 
   const handleDeactivateVendor = async () => {
     try {
-      console.log('deactivating vendor...');
-      await deactivateVendor(vendorId);
-      // Optionally, you can update the local state to reflect the change
-      /* setFormData(prev => ({
+      setIsUpdatingStatus(true)
+      console.log("Deactivating vendor...")
+      await deactivateVendor(vendorId)
+
+      // Update local state immediately for better UX
+      setFormData((prev) => ({
         ...prev,
-        isActive: false
-      })); */
+        status: "inactive", // Set status to inactive
+      }))
+
+      // Refresh user data to get the latest status from server
+      await fetchVendorData()
     } catch (error) {
-      console.error('Error deactivating vendor:', error);
+      console.error("Error deactivating vendor:", error)
+      // Revert local state if API call failed
+      /* setFormData((prev) => ({
+        ...prev,
+        status: "inactive", // Set status to inactive
+      })) */
+     await fetchVendorData()
+    } finally {
+      setIsUpdatingStatus(false)
     }
   }
 
@@ -234,9 +279,10 @@ export const VendorInfo = ({ customerId }) => {
         name={`${formData.firstName} ${formData.lastName}`}
         email={formData.email}
         imageUrl="/Avatar3.png"
-        isActive={formData.isActive}
+        status={formData.status} // Use normalized status
         onActivate={handleActivateVendor}
         onDeactivate={handleDeactivateVendor}
+        loading={isUpdatingStatus}
       />
 
       {/* Navigation Tabs */}

@@ -27,9 +27,8 @@ const PermissionSection = ({ title, isOpen, onToggle, permissions, onChange, onS
           />
         </div>
       </div>
-
       {isOpen && (
-        <div className="grid grid-cols-2 gap-8 pb-4 ">
+        <div className="grid grid-cols-2 gap-8 pb-4">
           {permissions.map((permission) => (
             <div key={permission.id} className="flex items-center gap-2">
               <CustomCheckbox
@@ -45,7 +44,7 @@ const PermissionSection = ({ title, isOpen, onToggle, permissions, onChange, onS
   )
 }
 
-export const AdminModal = ({ isOpen, onClose }) => {
+export const UpdateAdminModal = ({ isOpen, onClose, adminData, onUpdateSuccess }) => {
   const [expandedSections, setExpandedSections] = useState([])
   const [formData, setFormData] = useState({
     firstName: "",
@@ -54,19 +53,29 @@ export const AdminModal = ({ isOpen, onClose }) => {
     phone: "",
     role: "",
     address: "",
-    password: "",
     avatar: null,
     permissions: {},
   })
+  const [imageFile, setImageFile] = useState(null)
+  const [previewImage, setPreviewImage] = useState(null)
+  const [adminStatus, setAdminStatus] = useState("")
 
-  const { getAllRoles, adminRoles, loading, createAdmin, permissions, getPermissions } = useRoleStore()
+  const {
+    getAllRoles,
+    adminRoles,
+    loading,
+    updateAdmin,
+    updateAdminImage,
+    permissions,
+    getPermissions,
+    activateAdmin,
+  } = useRoleStore()
 
   // Fetch roles and permissions when component mounts
   useEffect(() => {
     if (adminRoles === null) {
       getAllRoles()
     }
-
     if (!permissions || permissions.length === 0) {
       getPermissions()
     }
@@ -81,7 +90,6 @@ export const AdminModal = ({ isOpen, onClose }) => {
       permissions.forEach((category) => {
         const sectionKey = category.name.toLowerCase().replace(/_/g, "")
         initialExpandedSections.push(sectionKey)
-
         permissionsObj[sectionKey] = category.permissions.map((perm) => ({
           id: perm,
           label: formatPermissionLabel(perm),
@@ -101,6 +109,49 @@ export const AdminModal = ({ isOpen, onClose }) => {
     }
   }, [permissions])
 
+  console.log("ADMIN DATA:", adminData)
+
+  // Populate form with admin data when modal opens
+  useEffect(() => {
+    if (isOpen && adminData) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: adminData?.data?.firstname || "",
+        lastName: adminData?.data?.lastname || "",
+        email: adminData?.data?.email || "",
+        phone: adminData?.data?.phone || "",
+        role: adminData.data?.role?._id || "",
+        address: adminData.address || "",
+        avatar: null,
+      }))
+
+      // Set admin status
+      setAdminStatus(adminData?.data?.status || "")
+
+      // Set preview image if admin has an avatar
+      if (adminData.avatar) {
+        setPreviewImage(adminData.avatar)
+      } else {
+        setPreviewImage(null)
+      }
+
+      // Set permissions based on admin's current permissions
+      if (adminData.permissions && permissions) {
+        const updatedPermissions = { ...formData.permissions }
+        Object.keys(updatedPermissions).forEach((section) => {
+          updatedPermissions[section] = updatedPermissions[section].map((perm) => ({
+            ...perm,
+            checked: adminData.permissions.includes(perm.id),
+          }))
+        })
+        setFormData((prevForm) => ({
+          ...prevForm,
+          permissions: updatedPermissions,
+        }))
+      }
+    }
+  }, [isOpen, adminData, permissions])
+
   // Helper function to format permission labels
   const formatPermissionLabel = (permission) => {
     return permission
@@ -109,53 +160,28 @@ export const AdminModal = ({ isOpen, onClose }) => {
       .join(" ")
   }
 
-  // Reset form when modal opens/closes
+  // Reset form when modal closes
   useEffect(() => {
-    const roleData = Array.isArray(adminRoles?.data) ? adminRoles.data : []
-
-    if (isOpen) {
-      // Reset form data when modal opens
-      setFormData((prev) => ({
-        ...prev,
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        role: roleData?.[0]?._id || "",
-        address: "",
-        password: "",
-        avatar: null,
-        // Keep the permissions structure but reset all checked states
-        permissions: Object.keys(prev.permissions).reduce((acc, key) => {
-          acc[key] = prev.permissions[key].map((p) => ({ ...p, checked: false }))
-          return acc
-        }, {}),
-      }))
-    } else {
-      // Clear form data when modal closes
-      // We don't reset permissions structure here, just the checked states
-      setFormData((prev) => ({
-        ...prev,
+    if (!isOpen) {
+      setFormData({
         firstName: "",
         lastName: "",
         email: "",
         phone: "",
         role: "",
         address: "",
-        password: "",
         avatar: null,
-        permissions: Object.keys(prev.permissions).reduce((acc, key) => {
-          acc[key] = prev.permissions[key].map((p) => ({ ...p, checked: false }))
-          return acc
-        }, {}),
-      }))
-
+        permissions: {},
+      })
+      setImageFile(null)
+      setPreviewImage(null)
+      setAdminStatus("")
       // Reset expanded sections when modal closes
       if (permissions && permissions.length > 0) {
         setExpandedSections([permissions[0].name.toLowerCase().replace(/_/g, "")])
       }
     }
-  }, [isOpen, adminRoles, permissions])
+  }, [isOpen, permissions])
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
@@ -182,41 +208,87 @@ export const AdminModal = ({ isOpen, onClose }) => {
   }
 
   const handleSave = async () => {
-    // Collect all selected permission IDs into a flat array
-    const selectedPermissions = []
-    Object.keys(formData.permissions).forEach((section) => {
-      formData.permissions[section].forEach((permission) => {
-        if (permission.checked) {
-          selectedPermissions.push(permission.id)
-        }
+    try {
+      // Collect all selected permission IDs into a flat array
+      const selectedPermissions = []
+      Object.keys(formData.permissions).forEach((section) => {
+        formData.permissions[section].forEach((permission) => {
+          if (permission.checked) {
+            selectedPermissions.push(permission.id)
+          }
+        })
       })
-    })
 
-    //prepare the payload for API call
-    const adminData = {
-      firstname: formData.firstName,
-      lastname: formData.lastName,
-      email: formData.email,
-      password: formData.password,
-      role: formData.role,
-      permissions: selectedPermissions,
-      avatar: formData.avatar, // This will be null if no avatar is selected
+      // Prepare the payload for API call (excluding image)
+      const adminUpdateData = {
+        id: adminData?.data?._id,
+        firstname: formData.firstName,
+        lastname: formData.lastName,
+        email: formData.email,
+        role: formData.role,
+        permissions: selectedPermissions,
+        phone: formData.phone,
+        address: formData.address,
+      }
+
+      console.log("Update API Payload:", adminUpdateData)
+      console.log("Selected permissions:", selectedPermissions)
+
+      // Call the updateAdmin function from the store
+      await updateAdmin(adminUpdateData)
+
+      // Handle image upload separately if there's a new image
+      if (imageFile) {
+        const imageFormData = new FormData()
+        imageFormData.append("id", adminData?.data?._id)
+        imageFormData.append("image", imageFile)
+
+        console.log("Updating admin image...")
+        console.log("Image Form Data:", imageFormData)
+        await updateAdminImage({image: imageFormData})
+      }
+
+      // Call the success callback to refresh the admin list
+      if (onUpdateSuccess) {
+        await onUpdateSuccess()
+      }
+
+      // Close the modal on successful save
+      onClose()
+    } catch (error) {
+      console.error("Error updating admin:", error)
+      // You might want to show a toast notification here
     }
-
-    console.log("API Payload:", adminData)
-    console.log("Selected permissions:", selectedPermissions)
-
-    // Call the createAdmin function from the store
-    await createAdmin(adminData)
-
-    // close the modal on successful save
-    onClose()
   }
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
-      setFormData((prev) => ({ ...prev, avatar: file })) // Store the actual file, not the data URL
+      setImageFile(file)
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file)
+      setPreviewImage(previewUrl)
+    }
+  }
+
+  const handleActivateDeactivate = async () => {
+    try {
+      console.log(`${adminStatus === "active" ? "Deactivating" : "Activating"} admin:`, adminData._id)
+
+      await activateAdmin(adminData._id)
+
+      // Update local status state
+      setAdminStatus(adminStatus === "active" ? "inactive" : "active")
+
+      // Call the success callback to refresh the admin list
+      if (onUpdateSuccess) {
+        await onUpdateSuccess()
+      }
+
+      console.log(`Admin ${adminStatus === "active" ? "deactivated" : "activated"} successfully`)
+    } catch (error) {
+      console.error("Error activating/deactivating admin:", error)
+      // You might want to show a toast notification here
     }
   }
 
@@ -237,10 +309,20 @@ export const AdminModal = ({ isOpen, onClose }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New Admin"
+      title="Update Admin"
       buttons={[
         {
-          label: loading ? "Creating..." : "Save changes",
+          label: adminStatus === "active" ? "Deactivate Admin" : "Activate Admin",
+          onClick: handleActivateDeactivate,
+          primary: false,
+          disabled: loading,
+          className:
+            adminStatus === "active"
+              ? "bg-red-600 hover:bg-red-700 text-white"
+              : "bg-green-600 hover:bg-green-700 text-white",
+        },
+        {
+          label: loading ? "Updating..." : "Update Admin",
           onClick: handleSave,
           primary: true,
           disabled: loading,
@@ -250,21 +332,35 @@ export const AdminModal = ({ isOpen, onClose }) => {
       <div className="space-y-4 text-left p-6">
         {/* Avatar Upload */}
         <div className="flex flex-col items-center gap-2">
-          <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
-            {formData.avatar ? (
+          <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+            {previewImage ? (
               <img
-                src={URL.createObjectURL(formData.avatar) || "/placeholder.svg"}
+                src={previewImage || "/placeholder.svg"}
                 alt="Avatar"
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <div className="w-12 h-12 bg-gray-200" />
+              <div className="w-12 h-12 bg-gray-200 rounded-lg" />
             )}
           </div>
           <label className="cursor-pointer">
             <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-            <span className="text-sm text-indigo-600 hover:text-indigo-700">Upload avatar</span>
+            <span className="text-sm text-indigo-600 hover:text-indigo-700">
+              {previewImage ? "Change avatar" : "Upload avatar"}
+            </span>
           </label>
+        </div>
+
+        {/* Admin Status Indicator */}
+        <div className="flex items-center justify-center gap-2 p-3 bg-gray-50 rounded-lg">
+          <span className="text-sm font-medium text-gray-700">Current Status:</span>
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
+              adminStatus?.toLowerCase() === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            }`}
+          >
+            {adminStatus || "Unknown"}
+          </span>
         </div>
 
         {/* Name Fields */}
@@ -299,6 +395,14 @@ export const AdminModal = ({ isOpen, onClose }) => {
           onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
         />
 
+        {/* Address */}
+        <Input
+          type="text"
+          placeholder="Address"
+          value={formData.address}
+          onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
+        />
+
         {/* Role */}
         <CustomDropdown
           value={formData.role}
@@ -312,18 +416,10 @@ export const AdminModal = ({ isOpen, onClose }) => {
           }}
         />
 
-        {/* Password */}
-        <Input
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-        />
-
         {/* Permissions Sections */}
         <div className="border rounded-lg divide-y">
           <div className="p-4">
-            <h2 className="text-base font-medium text-gray-900">Set Permissions</h2>
+            <h2 className="text-base font-medium text-gray-900">Update Permissions</h2>
           </div>
           {sections.map(
             (section) =>

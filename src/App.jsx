@@ -76,11 +76,14 @@ function App() {
                   </RedirectAuthenticatedUser>
                   } 
                 />
-                {/* <Route path='/signup' element={<Signup /> } />              
-                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <Route 
+                path='/forgot-password' 
+                element={<ForgotPassword />} 
+                />
                 <Route path='/reset-password' element={<ResetPassword />} />
-                <Route path='/reset-password/success' element={<ResetPasswordSuccess />} />
                 <Route path='/reset-password-otp' element={<ResetPasswordOtp />} />
+                <Route path='/reset-password/success' element={<ResetPasswordSuccess />} />
+                {/* <Route path='/signup' element={<Signup /> } />              
                 <Route path='/signup/success' element={<SignUpSuccess />} />
                 <Route path='/signup/complete' element={<SignupComplete />} />
                 <Route path='/signup-otp' element={<SignUpOTP/>} /> */}

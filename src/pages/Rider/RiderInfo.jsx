@@ -28,11 +28,12 @@ export const RiderInfo = () => {
     address: '',
     startDate: '',
     expiryDate: '',
-    isActive: null,
+    status: null,
   });
   const [riderDeliveries, setRiderDeliveries] = useState([]);
   const [riderWallet, setRiderWallet] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
   const tabs = [
     { id: 'profile', label: 'Profile Information' },
@@ -48,8 +49,28 @@ export const RiderInfo = () => {
     deactivateRider,
     getRiderDeliveriesById,
     getUserWalletById, 
-    loading
+    loading,
+    getVendorVehicleById
   } = useUserStore();
+
+  useEffect(() => {
+    console.log("Fetching rider data for ID:", riderId)
+    console.log(typeof userid, riderId)
+    getVendorVehicleById(riderId)
+  }, [riderId]) 
+
+  // Helper function to normalize status
+  const normalizeStatus = (status) => {
+    if (typeof status === "string") {
+      const lowerStatus = status.toLowerCase()
+      if (lowerStatus === "active") return "active"
+      if (lowerStatus === "inactive") return "inactive"
+      if (lowerStatus === "pending") return "pending"
+    }
+    if (status === true) return "active"
+    if (status === false) return "inactive"
+    return "pending" // Default fallback
+  }
 
   // Memoized fetch functions to prevent unnecessary re-renders
 
@@ -71,6 +92,7 @@ export const RiderInfo = () => {
             address: riderData.address || '56 Opebi road, Sabo Yaba.',
             startDate: riderData.start_date || '22-02-2022',
             expiryDate: riderData.expiry_date || '22-02-2022',
+            status: normalizeStatus(riderData.status),
           });
         }
       } catch (error) {
@@ -116,7 +138,7 @@ export const RiderInfo = () => {
         fetchRiderWallet()
       }
     }, [riderId, fetchRiderData, fetchRiderDeliveries, fetchRiderWallet])
-
+    
 
   //handle changes in inputs  
   const handleInputChange = (field, value) => {
@@ -132,13 +154,31 @@ export const RiderInfo = () => {
     console.log('Saving changes:', formData);
   };
 
-  //activates rider status
+  //activates rider status 
   const handleActivateUser = async () => {
     try {
-      console.log('activating user...');
-      await activateRider(riderId)  
+      setIsUpdatingStatus(true)
+      console.log("Activating Rider...")
+      await activateRider(riderId)
+
+      // Update local state immediately for better UX
+      setFormData((prev) => ({
+        ...prev,
+        status: "active", // Set status to active
+      }))
+
+      // Refresh user data to get the latest status from server
+      await fetchRiderData()
     } catch (error) {
-      console.error('Error activating user:', error);
+      console.error("Error activating rider:", error)
+      // Revert local state if API call failed
+      /* setFormData((prev) => ({
+        ...prev,
+        isActive: false,
+      })) */
+     await fetchRiderData()
+    } finally {
+      setIsUpdatingStatus(false)
     }
   }
 
@@ -146,15 +186,28 @@ export const RiderInfo = () => {
   //deactivates rider status
   const handleDeactivateUser = async () => {
     try {
-      console.log('deactivating user...');
-      await deactivateRider(riderId);
-      // Optionally, you can update the local state to reflect the change
-      setFormData(prev => ({
+      setIsUpdatingStatus(true)
+      console.log("Deactivating rider...")
+      await deactivateRider(riderId)
+
+      // Update local state immediately for better UX
+      setFormData((prev) => ({
         ...prev,
-        isActive: false
-      }));
+        status: "inactive", // Set status to inactive
+      }))
+
+      // Refresh user data to get the latest status from server
+      await fetchRiderData()
     } catch (error) {
-      console.error('Error deactivating user:', error);
+      console.error("Error deactivating rider:", error)
+      // Revert local state if API call failed
+      /* setFormData((prev) => ({
+        ...prev,
+        status: "inactive", // Set status to inactive
+      })) */
+     await fetchRiderData()
+    } finally {
+      setIsUpdatingStatus(false)
     }
   }
 
@@ -191,9 +244,10 @@ export const RiderInfo = () => {
         name={`${formData.firstName} ${formData.lastName}`}
         email={formData.email}
         imageUrl="/Avatar3.png"
-        isActive={formData.isActive}
+        status={formData.status}
         onActivate={handleActivateUser}
         onDeactivate={handleDeactivateUser}
+        loading={isUpdatingStatus}
       />
 
       {/* Navigation Tabs */}
