@@ -29,6 +29,7 @@ export const RiderInfo = () => {
     startDate: '',
     expiryDate: '',
     status: null,
+    driversLicense: null,
   });
   const [riderDeliveries, setRiderDeliveries] = useState([]);
   const [riderWallet, setRiderWallet] = useState([])
@@ -57,7 +58,7 @@ export const RiderInfo = () => {
     console.log("Fetching rider data for ID:", riderId)
     console.log(typeof userid, riderId)
     getVendorVehicleById(riderId)
-  }, [riderId]) 
+  }, [riderId])
 
   // Helper function to normalize status
   const normalizeStatus = (status) => {
@@ -79,6 +80,7 @@ export const RiderInfo = () => {
       try {
         setIsLoading(true)
         const riderData = await getRiderById(riderId);
+         console.log("Riders Details Response: ", riderData)
         
         if (riderData) {
           setFormData({
@@ -93,6 +95,7 @@ export const RiderInfo = () => {
             startDate: riderData.start_date || '22-02-2022',
             expiryDate: riderData.expiry_date || '22-02-2022',
             status: normalizeStatus(riderData.status),
+            driversLicense: riderData.driver_license || null,
           });
         }
       } catch (error) {
@@ -327,16 +330,17 @@ export const RiderInfo = () => {
       {/* license */}
       {activeTab === 'license' && (
         <LicenseForm
-          formData={formData}
+          formData={formData?.driversLicense}
           onInputChange={handleInputChange}
           onSave={handleSaveChanges}
+          loading={loading}
          />
       )}
 
 
       {/* wallet */}
       {activeTab === 'vehicles' && (
-        <VehiclesInfo />
+        <VehiclesInfo riderId={riderId} />
       )}
 
       {/* Refresh Button (Optional) */}

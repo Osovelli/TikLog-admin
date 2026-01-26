@@ -6,16 +6,20 @@ import { CustomButton } from './CustomButton';
 import { ArrowLeftCircle } from 'lucide-react';
 import useUserStore from '@/store/UserStore';
 import { Navigate, useNavigate } from 'react-router';
+import useNotificationStore from '@/store/NotificationStore';
+import { get } from 'react-hook-form';
 
 export const AppLayout = ({children, icon, title, showBackButton=true, showAppHeader=true}) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
-    const { userCount, loading, getUserCount } = useUserStore(); 
+    const { userCount, loading, getUserCount } = useUserStore();
+    const {getNotifications, notifications} = useNotificationStore();
 
     const navigate = useNavigate();
 
     useEffect(() => {
       getUserCount();
+      getNotifications();
     }, []);
 
     //console.log("User Count:", userCount?.data);
@@ -50,7 +54,6 @@ export const AppLayout = ({children, icon, title, showBackButton=true, showAppHe
               name={title} 
               toggleSidebar={toggleSidebar}
               showBack={showBackButton}
-              className
             /> 
           </div>
           }

@@ -37,23 +37,32 @@ import { Toaster } from 'react-hot-toast';
 import { RolesPage } from './pages/Roles/RolesPage';
 import PageSettings from './components/_SettingsComponents/TabsComponent/PageSettings';
 import { Terms } from './components/_SettingsComponents/TabsComponent/Terms';
+import { jwtDecode } from 'jwt-decode';
 //import useAuthStore from './store/authStore';
 //import { useEffect } from 'react';
 //import { RedirectAuthenticatedUser } from './lib/hooks/UseAuthRedirect';
 
 
-function App() {
+function App() { 
+  const ProtectedRoute = ({ children }) => {  
+      const token = localStorage.getItem('token');
+      if (!token) {
+          return <Navigate to='/signin' replace />;
+      }
 
-  const ProtectedRoute = ({ children }) => {
-	//const { isAuthenticated, user } = useAuthStore();
-    
-    const token = localStorage.getItem('token')
-    // (isAuthenticated && user ) {
-    if (!token) {
-      return <Navigate to='/signin' replace />;
-    }
+      try {
+          const decoded = jwtDecode(token);
+          // Check if token is expired
+          if (decoded.exp * 1000 < Date.now()) {
+              localStorage.removeItem('token');
+              return <Navigate to='/signin' replace />;
+          }
+      } catch (e) {
+          localStorage.removeItem('token');
+          return <Navigate to='/signin' replace />;
+      }
 
-    return children;
+      return children;
   };
 
   const RedirectAuthenticatedUser = ({ children }) => {

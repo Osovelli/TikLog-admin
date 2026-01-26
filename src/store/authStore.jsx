@@ -71,6 +71,23 @@ const useAuthStore = create((set) => ({
     } */
   },
 
+  signup: async ({ firstname, lastname, email, password, role }) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.post('/admin/auth/register', { firstname, lastname, email, password, role });
+      console.log("Signup Response", response)
+      toast.success(response.data.message);
+      set({ loading: false });
+      return { success: true };
+    } catch (error) {
+      console.error("Signup failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Signup failed. Please try again.', showErrorModal: true });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
   login: async ({email, password}) => {
     set({ loading: true, error: null });
     try {
@@ -95,10 +112,12 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  resetEmail: async (phone_number) => {
+  resetEmail: async ({phone_number}) => {
     set({ loading: true, error: null });
+    console.log("phone number:", phone_number)
     try {
-      const response = await axiosInstance.post('/auth/admin/forgot', { phone_number });
+      //post to the api based on user type
+      const response = await axiosInstance.post('/auth/admin/forgot', {phone_number});
       console.log("Reset Email Response", response)
       toast.success(response.data.message);
       set({ loading: false });
@@ -114,10 +133,10 @@ const useAuthStore = create((set) => ({
   },
 
 
-  changePassword: async ({ oldPassword, newPassword, otp }) => {
+  changePassword: async ({ old_password, new_password, confirm_password }) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.post('/auth/change-password', { oldPassword, newPassword, otp });
+      const response = await axiosInstance.post('/auth/change_password', { old_password, new_password, confirm_password });
       console.log("Change Password Response", response)
       toast.success(response.data.message);
       set({ loading: false });

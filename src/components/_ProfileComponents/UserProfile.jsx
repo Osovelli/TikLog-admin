@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { format } from "date-fns"
+import { format, set } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
@@ -250,7 +250,8 @@ function PersonalInfo() {
 
 function ChangePasswordForm() {
   const [formData, setFormData] = useState({
-    otp: "",
+    /* otp: "", */
+    old_password: "",
     new_password: "",
     confirm_password: "",
   })
@@ -260,7 +261,7 @@ function ChangePasswordForm() {
   const [passwordError, setPasswordError] = useState("")
   const [confirmPasswordError, setConfirmPasswordError] = useState("")
 
-   const { resendotp, resetEmail } = useAuthStore()
+   const { changePassword } = useAuthStore()
 
   // Password validation function
   const validatePassword = (password) => {
@@ -315,10 +316,10 @@ function ChangePasswordForm() {
     let isValid = true
 
     // Check if OTP is provided
-    if (!formData.otp || formData.otp.length < 6) {
+   /*  if (!formData.otp || formData.otp.length < 6) {
       setError("Please enter a valid 6-digit OTP")
       isValid = false
-    }
+    } */
 
     // Check if new password is provided and valid
     if (!formData.new_password) {
@@ -361,34 +362,22 @@ function ChangePasswordForm() {
 
       // Prepare API payload exactly as requested
       const payload = {
-        otp: formData.otp,
+        old_password: formData.old_password,
         new_password: formData.new_password,
         confirm_password: formData.confirm_password,
       }
 
       console.log("Changing password with payload:", payload)
 
-      // Make API call to change password
-      /* const response = await fetch("/api/auth/change-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }) */
+      const response = await changePassword(payload)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to change password")
-      }
-
+      if (response.data.status === "success") {
       setSuccess(true)
-      console.log("Password changed successfully:", data)
-
+      setError("")
+      }
       // Reset form after successful change
       setFormData({
-        otp: "",
+        old_password: "",
         new_password: "",
         confirm_password: "",
       })
@@ -403,9 +392,9 @@ function ChangePasswordForm() {
     }
   }
 
-  const handleSendOtp = async () => {
+ /*  const handleSendOtp = async () => {
       await resetEmail('traviscameron332@gmail.com')
-  }
+  } */
 
   return (
     <div className="mt-8 mb-8 flex flex-col md:flex-row px-4 md:gap-10 justify-between">
@@ -434,7 +423,7 @@ function ChangePasswordForm() {
         )}
 
         {/* OTP Field */}
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">OTP Verification</label>
             <Button
@@ -458,7 +447,20 @@ function ChangePasswordForm() {
             disabled={isLoading}
             required
           />
-        </div>
+        </div> */}
+
+        {/* Old Password Field */}
+        <InputComponent
+          name="old_password"
+          type="password"
+          password={true}
+          label="Old Password"
+          placeholder="Enter your old password"
+          value={formData.old_password}
+          onChange={handleInputChange}
+          disabled={isLoading}
+          required
+        />
 
         {/* New Password Field */}
         <InputComponent
@@ -505,7 +507,7 @@ function ChangePasswordForm() {
             onClick={handleChangePassword}
             disabled={
               isLoading ||
-              !formData.otp ||
+              !formData.old_password ||
               !formData.new_password ||
               !formData.confirm_password ||
               passwordError ||

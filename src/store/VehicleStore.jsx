@@ -142,6 +142,26 @@ createVehicle: async (vehicleData) => {
     }
   },
 
+    getRiderVehicle: async (riderId) => {
+      set({ loading: true, error: null });
+      try {
+        const response = await axiosInstance.get(
+          `/admin/vehicle_management/all_vehicles?rider=${riderId}`
+        );
+        console.log("GET RIDER VEHICLE BY RIDER ID RESPONSE", response.data);
+        set({ loading: false });
+        return response.data.data;
+      } catch (error) {
+        set({
+          loading: false,
+          error: error?.response?.data?.message || "Failed to fetch rider vehicle by rider ID",
+        });
+        console.error("Error fetching rider vehicle by rider ID:", error);
+      } finally {
+        set({ loading: false });
+      }
+    },
+
 /* createVehicle: async (vehicleData) => {
     set({ loading: true, error: null });
     try {

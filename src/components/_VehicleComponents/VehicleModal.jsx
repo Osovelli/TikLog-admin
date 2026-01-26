@@ -239,9 +239,9 @@ export const VehicleModal = ({ isOpen, onClose }) => {
             </SelectTrigger>
             <SelectContent className="z-[200]">
               <SelectItem value="car">Car</SelectItem>
-              <SelectItem value="bike">Bike</SelectItem>
               <SelectItem value="van">Van</SelectItem>
               <SelectItem value="truck">Truck</SelectItem>
+              {/* <SelectItem value="bike">Bike</SelectItem> */}
             </SelectContent>
           </Select>
         </div>
@@ -250,7 +250,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
         <div className="space-y-2 text-left">
           <Label>Vehicle Make</Label>
           <Select value={formData.make} onValueChange={(value) => handleInputChange("make", value)}>
-            <SelectTrigger className="w-full w-full focus:ring-0 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0 focus:ring-ring focus-visible:ring-offset-0">
+            <SelectTrigger className="w-full focus:ring-0 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 focus-visible:ring-0 focus:ring-ring focus-visible:ring-offset-0">
               <SelectValue placeholder="Select make" />
             </SelectTrigger>
             <SelectContent className="z-[200]">
@@ -371,7 +371,7 @@ export const VehicleModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* License Dates */}
-        <div className="grid grid-cols-2 gap-4 text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
           <div className="space-y-2">
             <Label>License Issue Date</Label>
             <Input

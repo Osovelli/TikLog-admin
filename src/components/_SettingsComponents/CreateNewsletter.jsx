@@ -28,11 +28,12 @@ export default function CreateNewsletter() {
 
   return (
     <AppLayout title={'Create Newsletter'} 
-    icon={
+    /* icon={
     <Link to="/settings/newsletter" className="text-gray-500 hover:text-gray-600">
         <ArrowLeft />
     </Link>
-    }>
+    } */
+    >
     <div className="p-6 space-y-6">
       <div className="bg-gray-100 rounded-lg p-1">
        {/*  <Tabs defaultValue="about-us">

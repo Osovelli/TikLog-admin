@@ -113,7 +113,7 @@ export const VendorInfo = ({ customerId }) => {
     try {
       setIsLoading(true)
       const vendorData = await getVendorById(vendorId);
-      
+      console.log("Vendor Data Response: ", vendorData)
       if (vendorData) {
       setFormData({
         firstName: vendorData.firstname || '',

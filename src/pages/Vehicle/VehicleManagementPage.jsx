@@ -7,6 +7,7 @@ import { AddVehicleModal } from '@/components/_VehicleComponents/AddVehicleModal
 import { VehicleModal } from '@/components/_VehicleComponents/VehicleModal';
 import { VehicleTypeModal } from '@/components/_VehicleComponents/VehicleTypeModal';
 import useVehicleStore from '@/store/VehicleStore';
+import { VehicleDetails } from '@/components/_VehicleComponents/VehicleDetails';
 
 const TabButton = ({ label, active, onClick }) => (
   <button
@@ -36,6 +37,7 @@ export const VehicleManagementPage = () => {
   const [activeTab, setActiveTab] = useState('vehicles');
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
 
   const { vehicles, loading, error, fetchVehicles, createVehicle } = useVehicleStore()
@@ -122,6 +124,9 @@ export const VehicleManagementPage = () => {
 
   const handleView = (row) => {
     console.log('View:', row);
+    setIsDetailsOpen(true);
+    // Set selected vehicle for details view
+    setSelectedVehicle(row);
   };
 
   const handleNewClick = () => {
@@ -220,6 +225,11 @@ export const VehicleManagementPage = () => {
         onClose={() => setIsTypeModalOpen(false)}
       />
     </div>
+    <VehicleDetails 
+    vehicle={selectedVehicle} 
+    isOpen={isDetailsOpen} 
+    onClose={() => setIsDetailsOpen(false)} 
+    />
     </AppLayout>
   );
 };
