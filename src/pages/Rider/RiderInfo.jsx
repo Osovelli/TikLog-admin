@@ -45,18 +45,21 @@ export const RiderInfo = () => {
   ]
 
   const { 
-    getRiderById, 
+    getRiderById,
+    singleRider: riderInfo,
+    updateRider,
     activateRider, 
     deactivateRider,
     getRiderDeliveriesById,
-    getUserWalletById, 
+    getUserWalletById,
+    getRiderWalletById,
     loading,
-    getVendorVehicleById
+    getVendorVehicleById,
   } = useUserStore();
 
   useEffect(() => {
-    console.log("Fetching rider data for ID:", riderId)
-    console.log(typeof userid, riderId)
+    /* console.log("Fetching rider data for ID:", riderId)
+    console.log(typeof userid, riderId) */
     getVendorVehicleById(riderId)
   }, [riderId])
 
@@ -64,8 +67,8 @@ export const RiderInfo = () => {
   const normalizeStatus = (status) => {
     if (typeof status === "string") {
       const lowerStatus = status.toLowerCase()
-      if (lowerStatus === "active") return "active"
-      if (lowerStatus === "inactive") return "inactive"
+      if (lowerStatus === "activated") return "active"
+      if (lowerStatus === "deactivated") return "inactive"
       if (lowerStatus === "pending") return "pending"
     }
     if (status === true) return "active"
@@ -80,20 +83,21 @@ export const RiderInfo = () => {
       try {
         setIsLoading(true)
         const riderData = await getRiderById(riderId);
-         console.log("Riders Details Response: ", riderData)
+         //console.log("Riders Details Response: ", riderData)
         
         if (riderData) {
           setFormData({
-            firstName: riderData.firstname || 'James',
-            lastName: riderData.lastname || 'Okpeba',
-            email: riderData.email || 'user@tiklog.com',
-            phone: riderData.phone_number || '8100441503',
-            countryCode: riderData.country_code || '+234',
-            birthDate: riderData.date_of_birth || '22-02-2022',
+            firstName: riderData.firstname || '',
+            lastName: riderData.lastname || '',
+            email: riderData.email || '',
+            phone: riderData.phone || '',
+            countryCode: riderData.country_code || '',
+            birthDate: riderData.dob || '',
             gender: riderData.gender || 'Male',
             address: riderData.address || '56 Opebi road, Sabo Yaba.',
             startDate: riderData.start_date || '22-02-2022',
             expiryDate: riderData.expiry_date || '22-02-2022',
+            avatar: riderData.profileImage?.url || '',
             status: normalizeStatus(riderData.status),
             driversLicense: riderData.driver_license || null,
           });
@@ -122,7 +126,7 @@ export const RiderInfo = () => {
   //fetch Rider wallet data
    const fetchRiderWallet = useCallback(async () => {
       try {
-        const data = await getUserWalletById(riderId)
+        const data = await getRiderWalletById(riderId)
         console.log("Rider Wallet Response: ", data)
         if (data?.data) {
           setRiderWallet(data.data)
@@ -153,8 +157,9 @@ export const RiderInfo = () => {
 
 
   //this is suppose to handle/send the changes made in the rider form to the database
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async() => {
     console.log('Saving changes:', formData);
+    await updateRider(riderId, formData)
   };
 
   //activates rider status 
@@ -244,9 +249,10 @@ export const RiderInfo = () => {
 
       {/* Profile Header */}
       <ProfileHeader
+        info={riderInfo}
         name={`${formData.firstName} ${formData.lastName}`}
         email={formData.email}
-        imageUrl="/Avatar3.png"
+        imageUrl={formData.avatar}
         status={formData.status}
         onActivate={handleActivateUser}
         onDeactivate={handleDeactivateUser}

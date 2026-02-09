@@ -11,9 +11,9 @@ const useContentStore = create((set, get) => ({
   createContent: async (name, description) => {
     set({ loading: true, error: null })
     try {
-      const response = await axiosInstance.post("/content/create", {
-        name,
-        description,
+      const response = await axiosInstance.post("/pages", {
+        title: name,
+        content: description,
       })
       console.log("CREATE CONTENT RESPONSE", response.data)
 

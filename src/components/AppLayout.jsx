@@ -8,21 +8,34 @@ import useUserStore from '@/store/UserStore';
 import { Navigate, useNavigate } from 'react-router';
 import useNotificationStore from '@/store/NotificationStore';
 import { get } from 'react-hook-form';
+import useDashboardStore from '@/store/DashboardStore';
 
 export const AppLayout = ({children, icon, title, showBackButton=true, showAppHeader=true}) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
-    const { userCount, loading, getUserCount } = useUserStore();
+    const { userCount, loading, getUserCount, allUsers, getAllUsers } = useUserStore();
+  const { getDashboardUserGrowth, dashboardUserGrowthDetails, loading: dashboardLoading } = useDashboardStore()
     const {getNotifications, notifications} = useNotificationStore();
 
     const navigate = useNavigate();
 
-    useEffect(() => {
+    /* useEffect(() => {
       getUserCount();
       getNotifications();
+    }, []); */
+
+    useEffect(() => {
+      getAllUsers();
     }, []);
 
+    useEffect(() => {
+      getDashboardUserGrowth();
+    }, [])
+
+    //console.log("Dashboard User Growth Details:", dashboardUserGrowthDetails);
+
     //console.log("User Count:", userCount?.data);
+    //console.log("All Users:", allUsers);
 
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -41,7 +54,7 @@ export const AppLayout = ({children, icon, title, showBackButton=true, showAppHe
 
           {/* Sidebar */}
         <div className="md:pt-20 pt-6">
-          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} data={userCount?.data} />
+          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} data={dashboardUserGrowthDetails?.data} />
         </div>
   
         {/* Main Content */}

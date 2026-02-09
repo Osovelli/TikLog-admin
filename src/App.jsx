@@ -92,10 +92,10 @@ function App() {
                 <Route path='/reset-password' element={<ResetPassword />} />
                 <Route path='/reset-password-otp' element={<ResetPasswordOtp />} />
                 <Route path='/reset-password/success' element={<ResetPasswordSuccess />} />
-                {/* <Route path='/signup' element={<Signup /> } />              
+                <Route path='/signup' element={<Signup /> } />              
                 <Route path='/signup/success' element={<SignUpSuccess />} />
                 <Route path='/signup/complete' element={<SignupComplete />} />
-                <Route path='/signup-otp' element={<SignUpOTP/>} /> */}
+                <Route path='/signup-otp' element={<SignUpOTP/>} />
 
                 {/* Protected Routes - Require authentication */}
                 <Route 
@@ -194,7 +194,7 @@ function App() {
                 />
                 {/* <Route path='/settings' element={<SettingsPage />} /> */}
                 <Route 
-                path='/rider' 
+                path='/vehicle' 
                 element={
                   <ProtectedRoute>
                     <VehicleAndRider />

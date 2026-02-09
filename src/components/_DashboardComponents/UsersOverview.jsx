@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useState, useEffect, useCallback } from "react"
 import { TabButton } from "./TabButton"
 import { TimeframeButton } from "./TimeframeButton"
 import { BarChartComponent } from "./BarChartComponent"
@@ -7,14 +7,21 @@ import useDashboardStore from "@/store/DashboardStore"
 
 export const UsersOverview = () => {
   const [activeTab, setActiveTab] = useState("customers")
-  const [activeTimeFrame, setActiveTimeFrame] = useState("7D")
+  const [activeTimeFrame, setActiveTimeFrame] = useState("today")
   const [isTimeFrameOpen, setIsTimeFrameOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const { getUserDashboardData, userDashboardData } = useDashboardStore()
-
-  useEffect(() => {
-    getUserDashboardData()
-  }, [getUserDashboardData])
+  const { 
+    fetchCustomerStatRange, 
+    fetchRiderStatRange, 
+    fetchVendorStatRange,
+    fetchAdminStatRange,
+    customerStatRange,
+    riderStatRange,
+    vendorStatRange,
+    adminStatRange,
+    loading 
+  } = useDashboardStore()
 
   const tabs = [
     { id: "customers", label: "Customers" },
@@ -24,70 +31,87 @@ export const UsersOverview = () => {
   ]
 
   const timeFrames = [
-    { id: "today", label: "Today" },
-    { id: "7D", label: "7 D" },
-    { id: "30D", label: "30 D" },
-    { id: "12M", label: "12 M" },
-    { id: "allTime", label: "All time" },
+    { id: "today", label: "Today", apiValue: "today" },
+    { id: "7D", label: "7 D", apiValue: "7days" },
+    { id: "30D", label: "30 D", apiValue: "30days" },
+    { id: "12M", label: "12 M", apiValue: "12months" },
+    { id: "allTime", label: "All time", apiValue: "all" },
   ]
 
-  const filterDataByTimeFrame = (data, timeFrame) => {
-    if (!data || data.length === 0) return []
+  // Get the API value for the current timeframe
+  const getApiRange = useCallback((timeFrameId) => {
+    const timeFrame = timeFrames.find(tf => tf.id === timeFrameId)
+    return timeFrame?.apiValue || "today"
+  }, [])
 
-    const currentDate = new Date()
-    const currentMonthIndex = data.length - 1 // Assuming the last item is the current month
-
-    switch (timeFrame) {
-      case "today":
-        // Return only the current month data
-        return data.slice(currentMonthIndex, currentMonthIndex + 1)
-      case "7D":
-        // Return last 2 months (approximating 7 days as recent data)
-        return data.slice(Math.max(0, currentMonthIndex - 1), currentMonthIndex + 1)
-      case "30D":
-        // Return last 3 months (approximating 30 days)
-        return data.slice(Math.max(0, currentMonthIndex - 2), currentMonthIndex + 1)
-      case "12M":
-        // Return all 12 months
-        return data
-      case "allTime":
-        // Return all available data
-        return data
-      default:
-        return data
+  // Fetch data based on active tab and timeframe
+  const fetchData = useCallback(async () => {
+    const range = getApiRange(activeTimeFrame)
+    setIsLoading(true)
+    
+    try {
+      switch (activeTab) {
+        case "customers":
+          await fetchCustomerStatRange(range)
+          break
+        case "vendors":
+          await fetchVendorStatRange(range)
+          break
+        case "riders":
+          await fetchRiderStatRange(range)
+          break
+        case "adminUsers":
+          if (fetchAdminStatRange) {
+            await fetchAdminStatRange(range)
+          }
+          break
+        default:
+          break
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error)
+    } finally {
+      setIsLoading(false)
     }
-  }
+  }, [activeTab, activeTimeFrame, getApiRange, fetchCustomerStatRange, fetchVendorStatRange, fetchRiderStatRange, fetchAdminStatRange])
 
-  const transformApiDataToChartData = (apiData, userType) => {
-    if (!apiData?.monthlyData) return []
+  // Fetch data when tab or timeframe changes
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
-    return apiData.monthlyData.map((monthData, index) => ({
-      month: monthData.month,
-      value: monthData[userType] || 0,
-      active: false, // Will be set in the filtered data
-    }))
-  }
+  // Get current data based on active tab
+  const currentData = useMemo(() => {
+    switch (activeTab) {
+      case "customers":
+        return customerStatRange
+      case "vendors":
+        return vendorStatRange
+      case "riders":
+        return riderStatRange
+      case "adminUsers":
+        return adminStatRange
+      default:
+        return null
+    }
+  }, [activeTab, customerStatRange, vendorStatRange, riderStatRange, adminStatRange])
 
+  // Transform API data ({ x, y } format) to chart format
   const chartData = useMemo(() => {
-    if (!userDashboardData?.data?.monthlyData) {
+    if (!currentData || !Array.isArray(currentData)) {
       return []
     }
 
-    // Transform API data to chart format for the selected user type
-    const transformedData = transformApiDataToChartData(userDashboardData.data, activeTab)
-
-    // Filter data based on timeframe
-    const filteredData = filterDataByTimeFrame(transformedData, activeTimeFrame)
-
-    // Mark the last item as active
-    return filteredData.map((item, index) => ({
-      ...item,
-      active: index === filteredData.length - 1,
+    return currentData.map((item, index) => ({
+      month: item.x, // Use 'month' key for compatibility with BarChartComponent
+      label: item.x, // Also provide label
+      value: item.y || 0,
+      active: index === currentData.length - 1, // Mark last item as active
     }))
-  }, [userDashboardData, activeTab, activeTimeFrame])
+  }, [currentData])
 
   // Loading state
-  if (!userDashboardData?.data?.monthlyData) {
+  if (isLoading && chartData.length === 0) {
     return (
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
         <div className="mb-6">
@@ -122,7 +146,11 @@ export const UsersOverview = () => {
         <div className="flex flex-wrap -mx-2 overflow-x-auto pb-2 sm:pb-0">
           {tabs.map((tab) => (
             <div key={tab.id} className="px-2 mb-2 sm:mb-0">
-              <TabButton label={tab.label} active={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} />
+              <TabButton 
+                label={tab.label} 
+                active={activeTab === tab.id} 
+                onClick={() => setActiveTab(tab.id)} 
+              />
             </div>
           ))}
         </div>
@@ -170,8 +198,21 @@ export const UsersOverview = () => {
         </div>
       </div>
 
-      <div className="mt-4">
-        <BarChartComponent data={chartData} />
+      <div className="mt-4 relative">
+        {/* Loading overlay */}
+        {isLoading && chartData.length > 0 && (
+          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          </div>
+        )}
+        
+        {chartData.length === 0 && !isLoading ? (
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            <p>No data available for this period</p>
+          </div>
+        ) : (
+          <BarChartComponent data={chartData} />
+        )}
       </div>
     </div>
   )

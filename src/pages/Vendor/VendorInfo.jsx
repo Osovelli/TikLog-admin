@@ -51,11 +51,13 @@ export const VendorInfo = ({ customerId }) => {
   ]
 
   const { 
-    getVendorById, 
+    getVendorById,
+    singleVendor: vendorInfo, 
+    updateVendor,
     activateVendor, 
     deactivateVendor,
     getVendorDeliveriesById,
-    getUserWalletById, 
+    getVendorWalletById, 
     loading,
     getVendorVehicleById,
   } = useUserStore();
@@ -64,8 +66,8 @@ export const VendorInfo = ({ customerId }) => {
   const normalizeStatus = (status) => {
     if (typeof status === "string") {
       const lowerStatus = status.toLowerCase()
-      if (lowerStatus === "active") return "active"
-      if (lowerStatus === "inactive") return "inactive"
+      if (lowerStatus === "activated") return "active"
+      if (lowerStatus === "deactivated") return "inactive"
       if (lowerStatus === "pending") return "pending"
     }
     if (status === true) return "active"
@@ -108,8 +110,8 @@ export const VendorInfo = ({ customerId }) => {
   // Memoized fetch functions to prevent unnecessary re-renders
   // Fetch user data when component mounts
   const fetchVendorData = useCallback(async () => {
-    console.log('Fetching user data for ID:', vendorId);
-    console.log(typeof vendorId, vendorId);
+    /* console.log('Fetching user data for ID:', vendorId);
+    console.log(typeof vendorId, vendorId); */
     try {
       setIsLoading(true)
       const vendorData = await getVendorById(vendorId);
@@ -119,16 +121,17 @@ export const VendorInfo = ({ customerId }) => {
         firstName: vendorData.firstname || '',
         lastName: vendorData.lastname || '',
         email: vendorData.email || '',
-        phone: vendorData.phone_number || '',
-        countryCode: vendorData.country_code || '+234',
-        birthDate: vendorData.date_of_birth || '22-02-2022',
+        phone: vendorData.phone || '',
+        countryCode: vendorData.country_code || '',
+        birthDate: vendorData.dob || '',
         gender: vendorData.gender || 'Male',
         address: vendorData.address || '56 Opebi road, Sabo Yaba.',
-        startDate: vendorData.start_date || '22-02-2022',
+        startDate: vendorData.createdAt || '22-02-2022',
         expiryDate: vendorData.expiry_date || '22-02-2022',
         businessName: vendorData.business_name || 'ABC Inc',
         businessType: vendorData.business_type || "Logistics",
         businessRegNumber: vendorData.business_reg_number || '103222455',
+        profileImage: vendorData.profileImage?.url || '',
         status: normalizeStatus(vendorData.status),
       });
     }
@@ -143,7 +146,7 @@ export const VendorInfo = ({ customerId }) => {
     const fetchVendorDeliveries = useCallback(async () => {
         try {
           const data = await getVendorDeliveriesById(vendorId)
-          console.log("Vendor Deliveries Response: ", data)
+          //console.log("Vendor Deliveries Response: ", data)
           if (data?.data) {
             setVendorDeliveries(data.data)
           }
@@ -156,16 +159,16 @@ export const VendorInfo = ({ customerId }) => {
     //fetch Rider wallet data
      const fetchVendorWallet = useCallback(async () => {
         try {
-          const data = await getUserWalletById(vendorId)
-          console.log("Vendor Wallet Response: ", data)
-          if (data?.data) {
-            setVendorWallet(data.data)
+          const data = await getVendorWalletById(vendorId)
+          //console.log("Vendor Wallet Response: ", data)
+          if (data) {
+            setVendorWallet(data)
           }
         } catch (error) {
           console.error("Error fetching vendor wallet info:", error)
           setVendorWallet([])
         }
-      }, [getUserWalletById, vendorId])
+      }, [getVendorWalletById, vendorId])
   
     // Fetch all data when component mounts or userid changes
       useEffect(() => {
@@ -193,8 +196,9 @@ export const VendorInfo = ({ customerId }) => {
     console.log(`Dropdown changed: ${field} = ${value}`);
   };
 
-  const handleSaveChanges = () => {
-    console.log('Saving changes:', formData);
+  const handleSaveChanges = async() => {
+    //console.log('Saving changes:', formData);
+    await updateVendor(vendorId, formData)
   };
 
   const handleActivateVendor = async () => {
@@ -276,9 +280,10 @@ export const VendorInfo = ({ customerId }) => {
 
       {/* Profile Header */}
       <ProfileHeader
+        info={vendorInfo}
         name={`${formData.firstName} ${formData.lastName}`}
         email={formData.email}
-        imageUrl="/Avatar3.png"
+        imageUrl={formData.profileImage?.url || "/Avatar3.png"}
         status={formData.status} // Use normalized status
         onActivate={handleActivateVendor}
         onDeactivate={handleDeactivateVendor}
@@ -293,6 +298,7 @@ export const VendorInfo = ({ customerId }) => {
           freeMode={true}
           modules={[FreeMode]}
           className="mySwiper"
+          
         >
           {tabs.map(tab => (
             <SwiperSlide key={tab.id} className="w-auto">
@@ -313,7 +319,7 @@ export const VendorInfo = ({ customerId }) => {
 
       {/* Profile Form */}
       {activeTab === 'profile' && (
-        <ProfileForm 
+        <ProfileForm
           formData={formData}
           onInputChange={handleInputChange}
           onSave={handleSaveChanges}
@@ -349,19 +355,20 @@ export const VendorInfo = ({ customerId }) => {
           formData={formData}
           onInputChange={handleInputChange}
           onSave={handleSaveChanges}
+          loading={loading}
+          vendorId={vendorInfo?._id}
          />
       )}
 
 
       {/* wallet */}
       {activeTab === 'vehicles' && (
-        <VehiclesInfo 
-        />
+        <VehiclesInfo vendorId={vendorInfo?._id} />
       )}
 
       {/* Deliveries */}
       {activeTab === 'riders' && (
-        <Riders />
+        <Riders vendorId={vendorInfo?._id} />
       )}
 
       {/* Refresh Button (Optional) */}

@@ -13,7 +13,7 @@ export const OrganisationInfo = ({ formData, onInputChange, onDropdownChange, on
   ]
 
   return (
-    <div className="bg-white rounded-lg p-8 sm:flex gap-52 border">
+    <div className="bg-white rounded-lg p-8 lg:flex gap-52 border">
       <h2 className="text-lg font-medium text-gray-900 mb-6">Organisation Info</h2>
       <div className="grid grid-cols-2 gap-6 flex-1">
         <div className=' col-span-2'>

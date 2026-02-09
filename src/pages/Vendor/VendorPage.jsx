@@ -25,13 +25,13 @@ export const VendorPage = () => {
   const [activeTab, setActiveTab] = useState('all');
   const navigate = useNavigate()
 
-  const { allVendors, loading, getAllVendors } = useUserStore()
+  const { allVendors, loading, getAllVendors, deleteVendor } = useUserStore()
 
   useEffect(() => {
     if (allVendors === null) {
       getAllVendors()
     } 
-    console.log("All Vendors:", allVendors?.data)
+    console.log("All Vendors:", allVendors)
   }, [])
 
   const tabs = [
@@ -45,23 +45,23 @@ export const VendorPage = () => {
     { key: 'email', label: 'Email' },
     { key: 'phoneNumber', label: 'Phone number' },
     { key: 'status', label: 'Status' },
-    { key: 'state', label: 'State' }
+    { key: 'country', label: 'Country' }
   ];
 
   // Transform backend data to match table format
   const transformVendorData = (backendData) => {
-    if (!backendData?.data || !Array.isArray(backendData.data)) {
+    if (!backendData || !Array.isArray(backendData)) {
       return []
     }
 
-    return backendData.data.map((vendor) => ({
+    return backendData.map((vendor) => ({
       id: vendor._id,
-      fullName: vendor.lastname || "N/A", // Use lastname as fullName since firstname might not be available
+      fullName: `${vendor.firstname || "N/A"} ${vendor.lastname || ""}`,
       email: vendor.email,
-      phoneNumber: vendor.phone_number,
+      phoneNumber: vendor.phone,
       status: vendor.status,
-      state: "N/A", // State is not provided in backend data
-      avatar: vendor.image || "/placeholder.svg?height=32&width=32", // Use placeholder if no image
+      country: vendor.nationality || "N/A",
+      avatar: vendor.profileImage?.url || "/placeholder.svg?height=32&width=32", // Use placeholder if no image
     }))
   }
 
@@ -97,11 +97,11 @@ export const VendorPage = () => {
     
         switch (activeTab) {
           case "active":
-            return allVendorsTransformed.filter((rider) => rider.status === "Active")
+            return allVendorsTransformed.filter((rider) => rider.status === "activated")
           case "inactive":
-            return allVendorsTransformed.filter((rider) => rider.status === "Inactive")
+            return allVendorsTransformed.filter((rider) => rider.status === "deactivated")
           case "pending":
-            return allVendorsTransformed.filter((rider) => rider.status === "Pending")
+            return allVendorsTransformed.filter((rider) => rider.status === "pending")
           default:
             return allVendorsTransformed; // Return all vendors if no specific tab is active
         }
@@ -130,6 +130,15 @@ export const VendorPage = () => {
         </div>
       );
     }
+    if (key === 'status') {
+      const statusColors = {
+        'activated': 'bg-green-50 text-green-700',
+        'deactivated': 'bg-red-50 text-red-700',
+        'pending': 'bg-yellow-50 text-yellow-700'
+      };
+      const colorClass = statusColors[value] || 'bg-gray-50 text-gray-700';
+      return <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>{value}</span>;
+    }
     return value;
   };
 
@@ -143,8 +152,18 @@ export const VendorPage = () => {
     navigate(`/vendors/${vendor.id}`)
   };
 
-  const handleDeleteClick = (row) => {
-    console.log('Delete clicked:', row);
+  const handleDeleteClick = async(row) => {
+    //console.log('Delete clicked:', row);
+    const confirmed = window.confirm(`Are you sure you want to delete ${row.fullName}? This action cannot be undone.`);
+    if (confirmed) {
+      try {
+        await deleteVendor(row.id);
+        // Refresh the vendor list after deletion
+        getAllVendors();
+      } catch (error) {
+        console.error("Error deleting vendor:", error);
+      }
+    }
   };
 
   const ActionButtons = ({ row }) => (

@@ -7,6 +7,9 @@ const useDashboardStore = create((set) => ({
   dashboardUserGrowthDetails: null,
   dashboardMonthlyData: null,
   dashboardUserAnalytics: null,
+  customerStatRange: null,
+  riderStatRange: null,
+  vendorStatRange: null,
   loading: false,
   error: null,
   showErrorModal: false,
@@ -22,7 +25,7 @@ const useDashboardStore = create((set) => ({
     } catch (error) {
         console.error("Get User Dashboard Data failed", error);
         set({ loading: false, error: error.message });
-        toast.error("Failed to fetch user dashboard data");
+        //toast.error("Failed to fetch user dashboard data");
         //return null;
         throw error; // Re-throw to handle in component if needed
     }
@@ -32,14 +35,14 @@ const useDashboardStore = create((set) => ({
     set({ loading: true, error: null });
     try {
         const response = await axiosInstance.get('/admin/analytics/detailed');
-        console.log("GET DASHBOARD USER DETAILS RESPONSE", response.data);
+       // console.log("GET DASHBOARD USER DETAILS RESPONSE", response.data);
         set({ loading: false, dashboardUserDetails: response.data });
         //toast.success("Dashboard user details fetched successfully");
         return response.data;
     } catch (error) {
-        console.error("Get Dashboard User Details failed", error);
+        //console.error("Get Dashboard User Details failed", error);
         set({ loading: false, error: error.message });
-        toast.error("Failed to fetch dashboard user details");
+        //toast.error("Failed to fetch dashboard user details");
         //return null;
         throw error; // Re-throw to handle in component if needed
     }
@@ -49,14 +52,14 @@ const useDashboardStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axiosInstance.get('/admin/analytics/monthly');
-        console.log("GET DASHBOARD MONTHLY DATA RESPONSE", response.data);
+        //console.log("GET DASHBOARD MONTHLY DATA RESPONSE", response.data);
         set({ loading: false, dashboardMonthlyData: response.data });
         //toast.success("Dashboard monthly data fetched successfully");
         return response.data;
     } catch (error) {
         console.error("Get Dashboard Monthly Data failed", error);
         set({ loading: false, error: error.message });
-        toast.error("Failed to fetch dashboard monthly data");
+        //toast.error("Failed to fetch dashboard monthly data");
         //return null;
         throw error; // Re-throw to handle in component if needed
     }
@@ -66,14 +69,14 @@ const useDashboardStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axiosInstance.get('/admin/analytics/users');
-        console.log("GET DASHBOARD USER ANALYTICS RESPONSE", response.data);
+        //console.log("GET DASHBOARD USER ANALYTICS RESPONSE", response.data);
         set({ loading: false, dashboardUserAnalytics: response.data });
         //toast.success("Dashboard user analytics fetched successfully");
         return response.data;
     } catch (error) {
-        console.error("Get Dashboard User Analytics failed", error);
+        //console.error("Get Dashboard User Analytics failed", error);
         set({ loading: false, error: error.message });
-        toast.error("Failed to fetch dashboard user analytics");
+        //toast.error("Failed to fetch dashboard user analytics");
         //return null;
         throw error; // Re-throw to handle in component if needed
     }
@@ -82,22 +85,66 @@ const useDashboardStore = create((set) => ({
   getDashboardUserGrowth: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.get('admin/analytics/growth');
-        console.log("GET DASHBOARD USER GROWTH RESPONSE", response.data);
-        set({ loading: false, dashboardUserGrowthDetails: response.data });
+      const response = await axiosInstance.get('/admin/stats/users');
+        //console.log("GET DASHBOARD USER GROWTH RESPONSE", response.data);
+        set({ loading: false, dashboardUserGrowthDetails: response?.data });
         //toast.success("Dashboard user growth fetched successfully");
         return response.data;
     } catch (error) {
-        console.error("Get Dashboard User Growth failed", error);
+        //console.error("Get Dashboard User Growth failed", error);
         set({ loading: false, error: error.message });
-        toast.error("Failed to fetch dashboard user growth");
+        //toast.error("Failed to fetch dashboard user growth");
         //return null;
         throw error; // Re-throw to handle in component if needed
+    } finally {
+      set({ loading: false });
     }
   },
 
+  fetchCustomerStatRange: async (range = "today") => {
+  set({ loading: true, error: null });
+  try {
+    const response = await axiosInstance.get(`/admin/stats/customers/chart/${range}`);
+    console.log("GET CUSTOMER STAT RANGE RESPONSE", response.data);
+    set({ loading: false, customerStatRange: response.data.data });
+    return response.data.data;
+  } catch (error) {
+    console.error("Get Customer Stat Range failed", error);
+    set({ loading: false, error: error.message });
+    toast.error("Failed to fetch customer stat range");
+    throw error;
+  }
+},
 
+fetchRiderStatRange: async (range = "today") => {
+  set({ loading: true, error: null });
+  try {
+    const response = await axiosInstance.get(`/admin/stats/riders/chart/${range}`);
+    console.log("GET RIDER STAT RANGE RESPONSE", response.data);
+    set({ loading: false, riderStatRange: response.data.data });
+    return response.data.data;
+  } catch (error) {
+    console.error("Get Rider Stat Range failed", error);
+    set({ loading: false, error: error.message });
+    toast.error("Failed to fetch rider stat range");
+    throw error;
+  }
+},
 
+fetchVendorStatRange: async (range = "today") => {
+  set({ loading: true, error: null });
+  try {
+    const response = await axiosInstance.get(`/admin/stats/vendors/chart/${range}`);
+    console.log("GET VENDOR STAT RANGE RESPONSE", response.data);
+    set({ loading: false, vendorStatRange: response.data.data });
+    return response.data.data;
+  } catch (error) {
+    console.error("Get Vendor Stat Range failed", error);
+    set({ loading: false, error: error.message });
+    toast.error("Failed to fetch vendor stat range");
+    throw error;
+  }
+},
 
   openErrorModal: (error) => set({ showErrorModal: true, error }),
 

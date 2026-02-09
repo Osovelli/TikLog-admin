@@ -17,28 +17,29 @@ export const HighlightSection = () => {
 
     const data = dashboardUserGrowthDetails.data
 
+
     return [
       {
         icon: "user",
-        currentValue: data.customers?.current || 0,
+        currentValue: data.customers || 0,
         growth: data.customers?.growth || 0,
         label: "Customers",
       },
       {
         icon: "store",
-        currentValue: data.vendors?.current || 0,
+        currentValue: data.vendors || 0,
         growth: data.vendors?.growth || 0,
         label: "Vendors",
       },
       {
         icon: "bicycle",
-        currentValue: data.riders?.current || 0,
+        currentValue: data.riders || 0,
         growth: data.riders?.growth || 0,
         label: "Riders",
       },
       {
         icon: "users",
-        currentValue: data.adminUsers?.current || 0,
+        currentValue: data.adminUsers || 0,
         growth: data.adminUsers?.growth || 0,
         label: "Admin Users",
       },

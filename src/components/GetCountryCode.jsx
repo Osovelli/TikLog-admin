@@ -71,9 +71,9 @@ console.log({fetchedCountries})
         .sort((a, b) => a.name.localeCompare(b.name));
   
       // For debugging: log each country object separately
-      countriesData.forEach(country => {
+      /* countriesData.forEach(country => {
         console.log(JSON.stringify(country, null, 2));
-      });
+      }); */
   
       return countriesData;
     } catch (error) {

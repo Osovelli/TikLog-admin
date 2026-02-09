@@ -91,14 +91,12 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
 
 
 
- /*  console.log("Sidebar Data:", data)
+  /* console.log("Sidebar Data:", data)
   console.log("Data type:", typeof data)
   console.log("Data keys:", data ? Object.keys(data) : "No data") */
   useEffect(()=>{
     getMe()
   },[])
-
-  console.log("ADMIN DATAS", adminData)
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -193,7 +191,7 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
 
 
               {/* User Management */}
-              {hasPermission(adminData?.permissions, ["create_user_management", "read_user_management", "update_user_management", "delete_user_management"]) && (
+              {hasPermission(adminData?.role.permissions, ["create_user", "read_user", "update_user", "delete_user"]) && (
                 <SidebarItem icon={<User size={20} />} text="User Management" routeName="profile">
                   {userManagementData.length > 0 ? (
                     userManagementData.map((user) => (
@@ -213,23 +211,25 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
               )}
 
               {/* transaction */}
-              {hasPermission(adminData?.permissions, ["create_transactions", "read_transactions", "update_transactions", "delete_transactions"]) && (
+              {hasPermission(adminData?.role.permissions, ["transaction_management"]) && (
                 <NestedSidebarItem icon={<PiNoteLight size={20} />} text="Transaction" routeName="transaction" />
               )}
               
               {/* Deliveries */}
-              {hasPermission(adminData?.permissions, ["create_deliveries", "read_deliveries", "update_deliveries", "delete_deliveries"]) && (  
+              {hasPermission(adminData?.role.permissions, ["create_deliveries", "read_deliveries", "update_deliveries", "delete_deliveries"]) && (  
                 <NestedSidebarItem icon={<Package size={20} />} text="Deliveries" routeName="deliveries" />
               )}
+              <NestedSidebarItem icon={<Package size={20} />} text="Deliveries" routeName="deliveries" />
 
               {/* Vehicles */}
-              {hasPermission(adminData?.permissions, ["create_vehicle_type", "read_vehicle_type", "update_vehicle_type", "delete_vehicle_type"]) && (    
+              {hasPermission(adminData?.role.permissions, ["create_vehicle_type", "read_vehicle_type", "update_vehicle_type", "delete_vehicle_type"]) && (    
                 <NestedSidebarItem icon={<Truck size={20} />} text="Vehicles" routeName="vehicle" />
               )}
+              <NestedSidebarItem icon={<Truck size={20} />} text="Vehicles" routeName="vehicle" />
 
 
               {/* Chat Management */}
-              {hasPermission(adminData?.permissions, ["create_chat", "read_chat", "update_chat", "delete_chat"]) && (
+              {hasPermission(adminData?.role.permissions, ["create_chat", "read_chat", "update_chat", "delete_chat", "get_chat", "chat_management"]) && (
               <NestedSidebarItem
                 icon={<HiOutlineChatBubbleLeftRight size={20} />}
                 text="Chat Management"
@@ -242,8 +242,10 @@ export const Sidebar = ({ isOpen, toggleSidebar, data }) => {
 
           {/* User Profile Section */}
           <div className="px-4">
+            <div className="border-t my-4">
             <NestedSidebarItem icon={<Settings size={20} />} text="Roles and Permission" routeName="admin-users" />
             <NestedSidebarItem icon={<FaDesktop size={20} />} text="Website Settings" routeName="settings" />
+            </div>
             <SidebarProfile 
               name={adminData?.firstname + " " + adminData?.lastname || "Admin"} 
               email={adminData?.email || "Admin@tiklog.com"} 

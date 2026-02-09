@@ -8,6 +8,7 @@ const Dropdown = ({ label, value, options = [], onChange }) => {
 
   return (
     <div className="relative w-full">
+      {label && <label className="block text-left text-xs font-normal text-gray-400 mb-1">{label}</label>}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -37,12 +38,13 @@ const Dropdown = ({ label, value, options = [], onChange }) => {
   );
 };
 
-const ColorPicker = ({ color, onChange }) => {
+const ColorPicker = ({ label, color, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const colors = ['Red', 'Blue', 'Black', 'White', 'Silver', 'Gray'];
 
   return (
     <div className="relative w-full">
+      {label && <label className="block text-left text-xs font-normal text-gray-400 mb-1">{label}</label>}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -140,15 +142,20 @@ const ImageUpload = ({ index, onImageChange }) => {
   );
 };
 
-export const VehicleInfoModal = ({ isOpen, onClose, vehicle }) => {
+export const VehicleInfoModal = ({ info, isOpen, onClose, vehicle }) => {
+  console.log("VehicleInfoModal received info:", info);
+  if (!info) {
+    return null; //loading state if possible, otherwise just return null until info is available
+  }
+
   const [vehicleData, setVehicleData] = useState({
-    make: vehicle?.make || 'Toyota',
-    model: vehicle?.model || 'Corolla',
-    year: vehicle?.year || '2023',
-    color: vehicle?.color || 'Red',
-    licensePlate: vehicle?.licensePlate || 'ABC - 1234 - IKJ',
-    driverName: vehicle?.driverName || 'Remi Aluko',
-    images: vehicle?.images || []
+    make: info?.make || '',
+    model: info?.model || '',
+    year: info?.year || '',
+    color: info?.color || '',
+    licensePlate: info?.vehicleLicense?.licenseNumber || '',
+    driverName: info?.driverName || '',
+    images: info?.images?.url || []
   });
 
   const makeOptions = ['Toyota', 'Honda', 'Ford', 'BMW', 'Mercedes'];
@@ -181,6 +188,7 @@ export const VehicleInfoModal = ({ isOpen, onClose, vehicle }) => {
       <div className="space-y-4">
         <Dropdown 
           value={vehicleData.make}
+          label={"Make"}
           options={makeOptions}
           onChange={(make) => setVehicleData({ 
             ...vehicleData, 
@@ -192,23 +200,27 @@ export const VehicleInfoModal = ({ isOpen, onClose, vehicle }) => {
         <div className="grid grid-cols-2 gap-4">
           <Dropdown 
             value={vehicleData.model}
+            label={"Model"}
             options={modelOptions[vehicleData.make] || []}
             onChange={(model) => setVehicleData({ ...vehicleData, model })}
           />
           <Dropdown 
             value={vehicleData.year}
+            label={"Year"}
             options={yearOptions}
             onChange={(year) => setVehicleData({ ...vehicleData, year })}
           />
         </div>
 
-        <ColorPicker 
+        <ColorPicker
+          label="Vehicle Color" 
           color={vehicleData.color}
           onChange={(color) => setVehicleData({ ...vehicleData, color })}
         />
 
         <Dropdown 
           value={vehicleData.licensePlate}
+          label={"License Number"}
           options={[vehicleData.licensePlate]}
           onChange={(licensePlate) => setVehicleData({ ...vehicleData, licensePlate })}
         />
@@ -225,6 +237,7 @@ export const VehicleInfoModal = ({ isOpen, onClose, vehicle }) => {
 
         <Dropdown 
           value={vehicleData.driverName}
+          label={"Driver's Name"}
           options={[vehicleData.driverName]}
           onChange={(driverName) => setVehicleData({ ...vehicleData, driverName })}
         />

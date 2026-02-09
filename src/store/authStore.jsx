@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axiosInstance from "@/lib/utils/axiosInstance";
 import { useNavigate } from "react-router";
+import { ForgotPassword } from "@/pages/AuthPages/ForgotPassword";
 
 
 const useAuthStore = create((set) => ({
@@ -91,7 +92,7 @@ const useAuthStore = create((set) => ({
   login: async ({email, password}) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.post('/auth/admin', { email, password });
+      const response = await axiosInstance.post('/admin/auth/login', { email, password });
       const token  = response.data?.data?.token;
       const user = response.data?.data?.user
       console.log("LOGIN token", token)
@@ -112,7 +113,26 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  resetEmail: async ({phone_number}) => {
+  updateAdminProfile: async (adminData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.put('/admin/auth/update', adminData);
+      console.log("Update Admin Profile Response", response)
+      toast.success(response.data.message);
+      // Update user data in store
+      set({ adminData: response.data.data, loading: false });
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      console.error("Update Admin Profile failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Update Admin Profile failed. Please try again.', showErrorModal: true });
+      return { success: false, error: error.response.data.message };
+    } finally {
+      set({ loading: false });
+    }
+  }, 
+
+  /* resetEmail: async ({phone_number}) => {
     set({ loading: true, error: null });
     console.log("phone number:", phone_number)
     try {
@@ -130,13 +150,49 @@ const useAuthStore = create((set) => ({
     } finally {
       set({ loading: false });
     }
-  },
+  }, */
 
-
-  changePassword: async ({ old_password, new_password, confirm_password }) => {
+  ForgotPassword: async ({ email }) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.post('/auth/change_password', { old_password, new_password, confirm_password });
+      const response = await axiosInstance.post('/admin/auth/forgot-password', { email });
+      console.log("Forgot Password Response", response)
+      toast.success(response.data.message);
+      set({ loading: false });
+      return { success: true };
+    } catch (error) {
+      console.error("Forgot Password failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Forgot Password failed. Please try again.', showErrorModal: true });
+      return { success: false, error: error.response.data.message };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  verifyForgotPasswordOTP: async ({ email, otp }) => {
+    set({ loading: true, error: null });
+
+    try {
+      const response = await axiosInstance.post('/auth/verify-reset-otp', { email, otp });
+      console.log("Verify Forgot Password OTP Response", response)
+      toast.success(response.data.message);
+      set({ loading: false });
+      return { success: true };
+    } catch (error) {
+      console.error("Verify Forgot Password OTP failed", error);
+      toast.error(error.response.data.message)
+      set({ loading: false, error: 'Verify Forgot Password OTP failed. Please try again.', showErrorModal: true });
+      return { success: false, error: error.response.data.message };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  changePassword: async ({ oldPassword, newPassword }) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.post('/admin/auth/change-password', { oldPassword, newPassword });
       console.log("Change Password Response", response)
       toast.success(response.data.message);
       set({ loading: false });
@@ -151,10 +207,10 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  resetPassword: async ({ new_password, confirm_password, otp }) => {
+  resetPassword: async ({ email, newPassword }) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.post('/auth/reset-password', { new_password, confirm_password, otp });
+      const response = await axiosInstance.post('/admin/auth/reset-password/', { email, new_password: newPassword });
       console.log("Reset Password Response", response)
       toast.success(response.data.message);
       set({ loading: false });
@@ -192,13 +248,13 @@ const useAuthStore = create((set) => ({
 		set({ loading: true });
 
 		try {
-			const res = await axiosInstance.get("/admin/me");
+			const res = await axiosInstance.get("/admin/auth/me");
 			set({  loading: false,  adminData: res.data.data});
-			console.log("single client result",res.data.data)
+			//console.log("single client result",res.data.data)
 			//toast.success(res.data.message);
 		} catch (error) {
 			set({ error: error.response?.data?.message || "Error Fetching Admin", loading: false });
-			console.log(error);
+			//console.log(error);
 			toast.error(error.response.data.message || "An error occurred");
 		}
 	},

@@ -292,15 +292,29 @@ export const UpdateAdminModal = ({ isOpen, onClose, adminData, onUpdateSuccess }
     }
   }
 
+  
   // Generate sections from backend permissions
-  const sections =
+  /* const sections =
     permissions?.map((category) => ({
       id: category.name.toLowerCase().replace(/_/g, ""),
       label: category.name
         .split("_")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" "),
-    })) || []
+    })) || [] */
+
+    // convert to an array before map
+    const sections = permissions
+    ? Object.entries(permissions).map(([categoryName, categoryPermissions]) => ({
+        id: categoryName.toLowerCase().replace(/_/g, ""),
+        label: categoryName
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" "),
+        permissions: categoryPermissions, // Include the permissions array for each section
+      }))
+    : []
+
 
   // Properly handle the role data
   const roleData = Array.isArray(adminRoles?.data) ? adminRoles.data : []

@@ -25,18 +25,16 @@ export const CustomerPage = () => {
   const { allUsers, loading, getAllUsers, deleteUser } = useUserStore()
 
   useEffect(() => {
-    if (allUsers === null) {
-      getAllUsers()
-    }
+    getAllUsers()
     console.log("All Users:", allUsers)
   }, [])
 
-  useEffect(() => {
+ /*  useEffect(() => {
     if (allUsers && allUsers.length > 0) {
       // Optionally, you can fetch details for the first user or any specific user
       // getUserById(allUsers[0]._id)
     }
-  }, [allUsers])
+  }, [allUsers]) */
 
 
   const tabs = [
@@ -50,23 +48,23 @@ export const CustomerPage = () => {
     { key: "email", label: "Email" },
     { key: "phoneNumber", label: "Phone number" },
     { key: "status", label: "Status" },
-    { key: "state", label: "State" },
+    { key: "nationality", label: "Nationality" },
   ]
 
   // Transform backend data to match table format
   const transformCustomerData = (backendData) => {
-    if (!backendData?.data || !Array.isArray(backendData.data)) {
+    if (!backendData || !Array.isArray(backendData)) {
       return []
     }
 
-    return backendData.data.map((customer) => ({
+    return backendData.map((customer) => ({
       id: customer._id,
-      fullName: customer.lastname || "N/A", // Use lastname as fullName since firstname might not be available
+      fullName: `${customer.firstname} ${customer.lastname}`,
       email: customer.email,
-      phoneNumber: customer.phone_number,
+      phoneNumber: customer.phone,
       status: customer.status,
-      state: "N/A", // State is not provided in backend data
-      avatar: customer.image || "/placeholder.svg?height=32&width=32", // Use placeholder if no image
+      nationality: customer.nationality,
+      avatar: customer.profileImage?.url || "/placeholder.svg?height=32&width=32", // Use placeholder if no image
     }))
   }
 
@@ -75,14 +73,16 @@ export const CustomerPage = () => {
     return transformCustomerData(allUsers)
   }, [allUsers])
 
+  //console.log("Transformed Customers:", allCustomers)
+
   const filteredCustomers = useMemo(() => {
     if (!allCustomers.length) return []
 
     switch (activeTab) {
       case "active":
-        return allCustomers.filter((customer) => customer.status === "Active")
+        return allCustomers.filter((customer) => customer.status === "activated")
       case "inactive":
-        return allCustomers.filter((customer) => customer.status === "Inactive")
+        return allCustomers.filter((customer) => customer.status === "deactivated")
       default:
         return allCustomers
     }
@@ -105,9 +105,9 @@ export const CustomerPage = () => {
       )
     } else if (key === "status") {
       const statusColors = {
-        Active: "border-green-200 text-green-700 bg-green-50",
-        Inactive: "border-red-200 text-red-700 bg-red-50",
-        Ongoing: "border-orange-200 text-orange-700 bg-orange-50",
+        activated: "border-green-200 text-green-700 bg-green-50",
+        inactive: "border-red-200 text-red-700 bg-red-50",
+        ongoing: "border-orange-200 text-orange-700 bg-orange-50",
       }
 
       return (
@@ -199,8 +199,8 @@ export const CustomerPage = () => {
                       tab.id === "all"
                         ? allCustomers.length
                         : tab.id === "active"
-                          ? allCustomers.filter((c) => c.status === "Active").length
-                          : allCustomers.filter((c) => c.status === "Inactive").length
+                          ? allCustomers.filter((c) => c.status === "activated").length
+                          : allCustomers.filter((c) => c.status === "inactive").length
                     })`}
                     active={activeTab === tab.id}
                     onClick={() => setActiveTab(tab.id)}

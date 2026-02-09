@@ -19,6 +19,7 @@ export const CustomerInfo = ({ customerId }) => {
     countryCode: "",
     birthDate: "",
     gender: "",
+    avatar: "",
     address: "",
     status: null,
   })
@@ -42,8 +43,8 @@ export const CustomerInfo = ({ customerId }) => {
   const normalizeStatus = (status) => {
     if (typeof status === "string") {
       const lowerStatus = status.toLowerCase()
-      if (lowerStatus === "active") return "active"
-      if (lowerStatus === "inactive") return "inactive"
+      if (lowerStatus === "activated") return "active"
+      if (lowerStatus === "deactivated") return "inactive"
       if (lowerStatus === "pending") return "pending"
     }
     if (status === true) return "active"
@@ -58,14 +59,16 @@ export const CustomerInfo = ({ customerId }) => {
     try {
       setIsLoading(true)
       const userData = await getUserById(userid)
+
       if (userData) {
         setFormData({
           firstName: userData.firstname || "",
           lastName: userData.lastname || "",
           email: userData.email || "",
-          phone: userData.phone_number || "",
+          phone: userData.phone || "",
           countryCode: userData.country_code || "",
           birthDate: userData.date_of_birth || "",
+          avatar: userData.profileImage?.url || "",
           gender: userData.gender || "",
           address: userData.address || "",
           // Handle different status formats
@@ -99,7 +102,7 @@ export const CustomerInfo = ({ customerId }) => {
       const data = await getUserWalletById(userid)
       console.log("User Wallet Response: ", data)
       if (data?.data) {
-        setUserWallet(data.data)
+        setUserWallet(data.data) // Assuming transactions are part of the wallet data
       }
     } catch (error) {
       console.error("Error fetching user wallet info:", error)
@@ -223,7 +226,7 @@ export const CustomerInfo = ({ customerId }) => {
         <ProfileHeader
           name={`${formData.firstName} ${formData.lastName}`}
           email={formData.email}
-          imageUrl={"/Avatar2.png"}
+          imageUrl={`${formData.avatar}`}
           status={formData.status}
           onActivate={handleActivateUser}
           onDeactivate={handleDeactivateUser}

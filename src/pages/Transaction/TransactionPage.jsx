@@ -3,7 +3,8 @@ import { TransactionTable } from '@/components/_TransactionComponents/Transactio
 import { AppLayout } from '@/components/AppLayout'
 import React from 'react'
 import { useEffect } from "react"
-import useWalletStore from '@/store/WalletStore'
+import useWalletStore from '@/store/TransactionStore'
+import useTransactionStore from '@/store/TransactionStore'
 
 /* export const TransactionPage = () => {
   return (
@@ -17,17 +18,17 @@ import useWalletStore from '@/store/WalletStore'
 
 
 export const TransactionPage = () => {
-  const { fetchWalletStats, fetchTransactionOverview, loading } = useWalletStore()
+  //const { fetchTransactionStats, fetchTransactionOverview, loading } = useTransactionStore()
 
-  useEffect(() => {
+  /* useEffect(() => {
     // Fetch initial data when component mounts
     const initializeData = async () => {
-      await fetchWalletStats()
+      await fetchTransactionStats()
       await fetchTransactionOverview({ period: "12" })
     }
 
     initializeData()
-  }, [fetchWalletStats, fetchTransactionOverview, ])
+  }, [fetchTransactionStats, fetchTransactionOverview, ]) */
 
   return (
     <AppLayout title={"Transaction Management"}>

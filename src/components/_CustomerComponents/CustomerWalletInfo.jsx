@@ -4,7 +4,7 @@ import { Table } from "../Table"
 
 const WalletHeader = ({ walletData, onAddFund, onFreezeWallet }) => {
   // Calculate wallet balance from transactions
-  const walletBalance = useMemo(() => {
+  /* const walletBalance = useMemo(() => {
     if (!walletData?.transactions) return 0
 
     return walletData.transactions.reduce((balance, transaction) => {
@@ -24,13 +24,13 @@ const WalletHeader = ({ walletData, onAddFund, onFreezeWallet }) => {
       }
       return balance
     }, 0)
-  }, [walletData])
+  }, [walletData]) */
 
   return (
     <div className="bg-[#1F1F76] text-white p-6 mx-2 rounded-lg">
       <div className="mb-6">
         <p className="text-gray-300 mb-2">Wallet balance</p>
-        <h1 className="text-4xl font-bold">₦{walletBalance.toLocaleString()}.00</h1>
+        <h1 className="text-4xl font-bold">₦{walletData?.balance.toLocaleString() || 0}.00</h1>
         {walletData?.is_frozen && (
           <div className="mt-2 inline-flex items-center gap-1 bg-red-500/20 text-red-200 px-2 py-1 rounded-full text-sm">
             <XCircle size={14} />
@@ -139,10 +139,12 @@ const TransactionIcon = ({ type, status }) => {
 }
 
 export const CustomerWalletInfo = ({ wallet }) => {
+  console.log("CustomerWalletInfo component received wallet prop:", wallet)
   const columns = [
     { key: "type", label: "Type" },
     { key: "amount", label: "Amount" },
     { key: "date", label: "Date" },
+    { key: "status", label: "Status" },
   ]
 
   // Helper function to get transaction type label
@@ -152,6 +154,8 @@ export const CustomerWalletInfo = ({ wallet }) => {
         return "Delivery Payment"
       case "transfer":
         return status === "Credited" ? "Transfer Received" : "Transfer Sent"
+      case "deposit":
+        return "Wallet Deposit"
       case "tip":
         return "Tip Payment"
       default:
@@ -166,7 +170,7 @@ export const CustomerWalletInfo = ({ wallet }) => {
       return []
     } */
 
-    const transactions = wallet
+    const transactions = wallet.transactions || wallet.data?.[0]?.transactions || []
 
     return transactions?.map((transaction, index) => {
       const transactionType = transaction.transaction_type || "deposit"
@@ -178,7 +182,7 @@ export const CustomerWalletInfo = ({ wallet }) => {
         type: getTransactionTypeLabel(transactionType, transaction.status),
         reference: transaction.reference || `#${transaction._id}`,
         amount: transaction.amount?.toString() || "0",
-        date: new Date(transaction.transaction_date).toLocaleDateString("en-US", {
+        date: new Date(transaction.createdAt).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
           year: "2-digit"
@@ -224,12 +228,12 @@ export const CustomerWalletInfo = ({ wallet }) => {
       return (
         <div>
           <div className="font-medium">{value}</div>
-          <div className="text-sm text-gray-500" title={row.fullDate}>
+          {/* <div className="text-sm text-gray-500" title={row.fullDate}>
             {new Date(row.originalTransaction.date).toLocaleTimeString("en-US", {
               hour: "2-digit",
               minute: "2-digit",
             })}
-          </div>
+          </div> */}
         </div>
       )
     }
@@ -269,7 +273,7 @@ export const CustomerWalletInfo = ({ wallet }) => {
     return (
       <div className="space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
-          <WalletHeader walletData={wallet.data?.[0]} onAddFund={handleAddFund} onFreezeWallet={handleFreezeWallet} />
+          <WalletHeader walletData={wallet.wallet} onAddFund={handleAddFund} onFreezeWallet={handleFreezeWallet} />
           <PaymentMethods />
         </div>
         <div className="bg-white p-6 rounded-lg">
@@ -291,7 +295,7 @@ export const CustomerWalletInfo = ({ wallet }) => {
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
-        <WalletHeader walletData={wallet.data?.[0]} onAddFund={handleAddFund} onFreezeWallet={handleFreezeWallet} />
+        <WalletHeader walletData={wallet.wallet} onAddFund={handleAddFund} onFreezeWallet={handleFreezeWallet} />
         <PaymentMethods />
       </div>
 

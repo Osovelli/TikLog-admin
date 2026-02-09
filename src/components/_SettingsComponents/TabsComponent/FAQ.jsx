@@ -259,7 +259,7 @@ const FAQ = () => {
           },
         ]}
       >
-        <div className="space-y-4 text-left">
+        <div className="space-y-4 text-left p-4">
           <div className="space-y-2">
             <Label htmlFor="add-question" className="text-sm font-medium text-gray-700">
               Question
@@ -314,7 +314,7 @@ const FAQ = () => {
           },
         ]}
       >
-        <div className="space-y-4 text-left">
+        <div className="space-y-4 text-left p-4">
           <div className="space-y-2">
             <Label htmlFor="edit-question" className="text-sm font-medium text-gray-700">
               Question
@@ -377,7 +377,7 @@ const FAQ = () => {
           </Alert>
 
           {faqToDelete && (
-            <div className="space-y-3">
+            <div className="space-y-3 p-2">
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">Question:</p>
                 <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">{faqToDelete.question}</p>

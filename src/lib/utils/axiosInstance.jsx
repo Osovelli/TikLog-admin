@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://tiklog-ms.onrender.com/api/v1', // Replace with your API URL
+  baseURL: 'https://tiklogsapisg.tiklogs.com/api/v1', // Replace with your API URL
   //timeout: 1000,
 });
 

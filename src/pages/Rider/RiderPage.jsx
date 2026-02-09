@@ -24,13 +24,12 @@ export const RiderPage = () => {
   const [activeTab, setActiveTab] = useState('all');
   const navigate = useNavigate()
 
-  const { allRiders, loading, getAllRiders } = useUserStore()
+  const { allRiders, loading, getAllRiders, deleteRider } = useUserStore()
 
    useEffect(() => {
       if (allRiders === null) {
         getAllRiders()
       } 
-      console.log("All Riders:", allRiders)
     }, [])
 
   const tabs = [
@@ -45,23 +44,23 @@ export const RiderPage = () => {
     { key: 'email', label: 'Email' },
     { key: 'phoneNumber', label: 'Phone number' },
     { key: 'status', label: 'Status' },
-    { key: 'state', label: 'State' }
+    { key: 'nationality', label: 'Nationality' }
   ];
 
    // Transform backend data to match table format
   const transformRiderData = (backendData) => {
-    if (!backendData?.data || !Array.isArray(backendData.data)) {
+    if (!backendData || !Array.isArray(backendData)) {
       return []
     }
 
-    return backendData.data.map((rider) => ({
+    return backendData.map((rider) => ({
       id: rider._id,
-      fullName: rider.lastname || "N/A", // Use lastname as fullName since firstname might not be available
+      fullName: rider.firstname && rider.lastname ? `${rider.firstname} ${rider.othername} ${rider.lastname}` : "N/A",
       email: rider.email,
-      phoneNumber: rider.phone_number,
+      phoneNumber: rider.phone,
       status: rider.status,
-      state: "N/A", // State is not provided in backend data
-      avatar: rider.image || "/placeholder.svg?height=32&width=32", // Use placeholder if no image
+      nationality: rider.nationality || "N/A",
+      avatar: rider.profileImage?.url || "/placeholder.svg?height=32&width=32", // Use placeholder if no image
     }))
   }
 
@@ -98,11 +97,11 @@ export const RiderPage = () => {
   
       switch (activeTab) {
         case "active":
-          return allRidersTransformed.filter((rider) => rider.status === "Active")
+          return allRidersTransformed.filter((rider) => rider.status === "activated")
         case "inactive":
-          return allRidersTransformed.filter((rider) => rider.status === "Inactive")
+          return allRidersTransformed.filter((rider) => rider.status === "deactivated")
         case "pending":
-          return allRidersTransformed.filter((rider) => rider.status === "Pending")
+          return allRidersTransformed.filter((rider) => rider.status === "pending")
         default:
           return allRidersTransformed
       }
@@ -132,6 +131,18 @@ export const RiderPage = () => {
         </div>
       );
     }
+    if (key === 'status') {
+      const statusColors = {
+        activated: 'text-green-600 bg-green-100',
+        deactivated: 'text-red-600 bg-red-100',
+        pending: 'text-yellow-600 bg-yellow-100'
+      };
+      return (
+        <span className={`px-2 py-1 text-sm rounded-lg ${statusColors[value] || 'text-gray-600 bg-gray-100'}`}>
+          {value}
+        </span>
+      );
+    }
     return value;
   };
 
@@ -142,13 +153,22 @@ export const RiderPage = () => {
 
 
   const handleManageUser = (row) => {
-    console.log('Manage password clicked:', row);
+    //console.log('Manage password clicked:', row);
     navigate(`/riders/${row.id}`)
   };
 
-  const handleDeleteClick = (row) => {
-    console.log('Delete clicked:', row);
-    
+  const handleDeleteClick = async(row) => {
+    //console.log('Delete clicked:', row);
+    const confirmed = window.confirm(`Are you sure you want to delete ${row.fullName}? This action cannot be undone.`);
+    if (confirmed) {
+      try {
+        await deleteRider(row.id);
+        // Refresh the rider list after deletion
+        getAllRiders();
+      } catch (error) {
+        console.error("Error deleting rider:", error);
+      }
+    }
   };
 
   const ActionButtons = ({ row }) => (
@@ -240,10 +260,10 @@ export const RiderPage = () => {
                       tab.id === "all"
                         ? allRidersTransformed.length
                         : tab.id === "active"
-                          ? allRidersTransformed.filter((r) => r.status === "Active").length
+                          ? allRidersTransformed.filter((r) => r.status === "activated").length
                           : tab.id === "pending" ? 
-                          allRidersTransformed.filter((r) => r.status === "Pending").length
-                          : allRidersTransformed.filter((r) => r.status === "Inactive").length
+                          allRidersTransformed.filter((r) => r.status === "pending").length
+                          : allRidersTransformed.filter((r) => r.status === "deactivated").length
                     })`}
                     active={activeTab === tab.id}
                     onClick={() => setActiveTab(tab.id)}

@@ -2,8 +2,17 @@ import { ArrowLeft } from "lucide-react"
 import { Link } from "react-router-dom"
 import { CustomButton } from "./CustomButton"
 
-export const ProfileHeader = ({ name, email, imageUrl, status, onActivate, onDeactivate, loading = false }) => {
+export const ProfileHeader = ({ info, name, email, imageUrl, status, onActivate, onDeactivate, loading = false }) => {
+
+  const isActive = status === "active" || status === true || status === "Activated"
+  const infoName = info ? `${info.firstname} ${info.lastname}` : name
+  const infoEmail = info ? info.email : email
+  const infoImage = info ? info.profileImage?.url || imageUrl : imageUrl
+
+
+
   // Normalize status to lowercase for consistent comparison
+
   const normalizedStatus =
     typeof status === "string"
       ? status.toLowerCase()
@@ -91,16 +100,16 @@ export const ProfileHeader = ({ name, email, imageUrl, status, onActivate, onDea
 
       {/* Profile Info */}
       <div className="relative bg-white border rounded-t-lg p-2 sm:p-6">
-        <div className="flex flex-col sm:flex-row mt-6 gap-3 items-start justify-between">
+        <div className="flex flex-col sm:flex-row mt-6 gap-3 items-start justify-between flex-wrap">
           <div className="flex sm:flex-row sm:items-center gap-4 ">
             <img
-              src={imageUrl || "/college girl.jpeg"}
+              src={infoImage || "/generic avatar.png"}
               alt={name}
               className="absolute -top-12 sm:w-40 w-24 h-24 sm:h-40 rounded-full object-cover"
             />
             <div className="mt-4 sm:mt-0 space-y-1 sm:ml-48">
-              <h1 className="text-2xl font-semibold text-gray-900">{name}</h1>
-              <p className="text-gray-500">{email}</p>
+              <h1 className="text-2xl font-semibold text-gray-900">{infoName}</h1>
+              <p className="text-gray-500">{infoEmail}</p>
 
               {/* Status Indicator */}
               {/* <div className="flex items-center gap-2 mt-2">

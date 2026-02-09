@@ -14,15 +14,15 @@ const useRoleStore = create((set, get) => ({
   showErrorModal: false,
 
 
-  createRole: async ({name, description}) => {
+  createRole: async ({name, permissions}) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.post('/roles', { name, description });
+      const response = await axiosInstance.post('/admin/roles', { name, permissions });
       console.log("CREATE ROLE RESPONSE", response)
       set({ loading: false});
       toast.success("role created successful");
     } catch (error) {
-      console.error("Crreate Role failed", error);
+      console.error("Create Role failed", error);
       toast.error(error.response.data.message)
       set({ loading: false, error: 'Create Role failed. Please check your credentials.', showErrorModal: true });
     }
@@ -32,9 +32,9 @@ const useRoleStore = create((set, get) => ({
         set({ loading: true });
 
         try {
-            const res = await axiosInstance.get('/roles');
+            const res = await axiosInstance.get('/admin/roles');
             set({  loading: false,  adminRoles: res.data?.data});
-            //console.log("All roles", res.data.data.data)
+            console.log("All roles", res.data?.data);
             //toast.success(res.data.message);
         } catch (error) {
             set({ error: error.response?.data?.message || "Error Fetching Admin Roles", loading: false });
@@ -43,18 +43,19 @@ const useRoleStore = create((set, get) => ({
         }
     },
 
-  getRole: async ({_id}) => {
+  getRole: async (id) => {
       //set({ loading: true });
-      if (!_id) {
+      if (!id) {
           set({ loading: false, error: "Role ID is required" });
           toast.error("Role ID is required");
           return;
       }
       try {
-          const res = await axiosInstance.get(`/roles/${_id}`);
+          const res = await axiosInstance.get(`/admin/roles/${id}`);
           set({  loading: false,  selectedRole: res.data.data});
-          //console.log("SELECTED ROLE", res.data.data.data)
+          //console.log("SELECTED ROLE", res.data.data)
           //toast.success(res.data.message);
+          return res.data.data;
       } catch (error) {
           set({ error: error.response?.data?.message || "Error Fetching Admin Roles", loading: false });
           //console.log(error);
@@ -62,10 +63,10 @@ const useRoleStore = create((set, get) => ({
       }
   },
 
-  updateRole: async ({_id, name, description}) => {
+  updateRole: async (id, name, permission) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.put(`/roles/${_id}`, { name, description });
+      const response = await axiosInstance.put(`/admin/roles/${id}`, { name, permission });
       console.log("UPDATE ROLE RESPONSE", response);
       set({ loading: false });
       toast.success("Role updated successfully");
@@ -82,10 +83,10 @@ const useRoleStore = create((set, get) => ({
     }
   },
 
-  deleteRole: async ({_id}) => {
+  deleteRole: async ({_id, name, permissions}) => {
     set({ loading: true, error: null });
     try {
-      const response = await axiosInstance.delete(`/roles/${_id}`);
+      const response = await axiosInstance.delete(`/admin/roles/${_id}`, { name, permissions });
       console.log("DELETE ROLE RESPONSE", response);
       set({ loading: false });
       toast.success("Role deleted successfully");
@@ -103,7 +104,37 @@ const useRoleStore = create((set, get) => ({
   },
 
 
-createAdmin: async ({ firstname, lastname, email, password, role, permissions, avatar }) => {
+  createAdmin: async (adminData) => {
+  set({ loading: true, error: null });
+  try {
+    const response = await axiosInstance.post('/admin/auth/register', adminData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    console.log("CREATE ADMIN RESPONSE", response);
+    set({ loading: false });
+    toast.success("Admin created successfully");
+    
+    // Optionally refresh the admin list
+    get().getAllAdmins();
+    
+    return response.data;
+  } catch (error) {
+    console.error("Create Admin failed", error);
+    toast.error(error.response?.data?.message || "An error occurred while creating admin");
+    set({ 
+      loading: false, 
+      error: 'Create Admin failed. Please check your credentials.', 
+      showErrorModal: true 
+    });
+    throw error;
+  }
+},
+
+
+/* createAdmin: async (adminData) => {
   set({ loading: true, error: null });
   try {
     // If there's an avatar, use FormData for multipart upload
@@ -123,7 +154,7 @@ createAdmin: async ({ firstname, lastname, email, password, role, permissions, a
       // Append avatar file
       formData.append('avatar', avatar);
 
-      const response = await axiosInstance.post('/admin/create', formData, {
+      const response = await axiosInstance.post('/admin/auth/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -144,7 +175,7 @@ createAdmin: async ({ firstname, lastname, email, password, role, permissions, a
         permissions
       };
 
-      const response = await axiosInstance.post('/admin/create', adminData, {
+      const response = await axiosInstance.post('/admin/auth/register', adminData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -165,12 +196,12 @@ createAdmin: async ({ firstname, lastname, email, password, role, permissions, a
     });
     throw error; // Re-throw to handle in component if needed
   }
-},
+}, */
 
 getAllAdmins: async () => {
   set({ loading: true, error: null });
   try {
-    const response = await axiosInstance.get('/admin/admin_users/get');
+    const response = await axiosInstance.get('/admins');
     console.log("GET ALL ADMINS RESPONSE", response);
     set({ loading: false, allAdmins: response.data.data });
     return response.data;
@@ -185,7 +216,7 @@ getAllAdmins: async () => {
 getAdmin: async (id) => {
   set({ loading: true, error: null });
   try {
-    const response = await axiosInstance.get(`/admin/admin_users/${id}`);
+    const response = await axiosInstance.get(`/admins/${id}`);
     console.log("GET ADMIN RESPONSE", response);
     set({ loading: false, selectedAdmin: response.data.data });
     return response.data;
@@ -212,7 +243,7 @@ updateAdmin: async ({ id, firstname, lastname, email, role, permissions, phone, 
       address
     };
 
-    const response = await axiosInstance.put('/admin/update', adminData, {
+    const response = await axiosInstance.put('/admins', adminData, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -282,10 +313,10 @@ activateAdmin: async ({ _id }) => {
   }
 },
 
-deleteAdmin: async ({ _id }) => {
+deleteAdmin: async ({ id }) => {
   set({ loading: false, error: null });
   try {
-    const response = await axiosInstance.delete(`/admin/admin_users/${_id}`);
+    const response = await axiosInstance.delete(`/admins/${id}`);
     console.log("DELETE ADMIN RESPONSE", response);
     //Refresh the admin list after successful deletion
     await get().getAllAdmins()
@@ -304,10 +335,10 @@ deleteAdmin: async ({ _id }) => {
 getPermissions: async () => {
   set({ loading: true, error: null });
   try {
-    const response = await axiosInstance.get('/admin/permission');
-    //console.log("GET PERMISSIONS RESPONSE", response);
+    const response = await axiosInstance.get('/admin/permissions');
+    console.log("GET PERMISSIONS RESPONSE", response);
     set({ loading: false, permissions: response.data.data });
-    return response.data;
+    return response.data.data;
   } catch (error) {
     //console.error("Get Permissions failed", error);
     //toast.error(error.response?.data?.message || "An error occurred while fetching permissions");
